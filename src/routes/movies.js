@@ -6,8 +6,9 @@ moviesRouter.get('/', async (req, res) => {
     res.json(movies);
 });
 
-moviesRouter.post('/', (req, res) => {
-    // TODO
+moviesRouter.post('/', async (req, res) => {
+    const newMovie = await movieService.addMovie(req.body);
+    res.json(newMovie);
 });
 
 module.exports = moviesRouter;
