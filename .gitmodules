@@ -1,0 +1,3 @@
+[submodule "movie_club_frontend"]
+	path = movie_club_frontend
+	url = https://github.com/marcosdima/movie_club_frontend.git
