@@ -9,25 +9,25 @@ const movieSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-    description: String,
-    genres: [String],
-    comments: [
-        {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Comment'
-		}
-    ],
-    imageUrl: {
-        type: String,
-        required: true,
-        unique: true,
-        validate: {
-          validator: function(v) {
-            return /^(http|https):\/\/[^ "]+$/.test(v);
-          },
-          message: props => `${props.value} no es una URL válida!`
-        }
+  description: String,
+  genres: [String],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment'
     }
+  ],
+  imageUrl: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: {
+        validator: function(v) {
+          return /^(http|https):\/\/[^ "]+$/.test(v);
+        },
+        message: props => `${props.value} no es una URL válida!`
+      }
+  }
 });
 
 movieSchema.set('toJSON', {
