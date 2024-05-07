@@ -8,10 +8,6 @@ const userScheme = mongoose.Schema({
 		required: true,
         unique: true
 	},
-    password: {
-		type: String,
-		required: true,
-	},
 	groups: [
 		{
 			type: mongoose.Schema.Types.ObjectId,

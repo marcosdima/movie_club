@@ -8,7 +8,13 @@ const addMovie = async (data) => {
     return newMovie;
 };
 
+const addMovies = async (data) => {
+    const newMovies = await movie.insertMany(data);
+    return newMovies;
+};
+
 module.exports = {
     getMovies,
-    addMovie
+    addMovie,
+    addMovies
 };

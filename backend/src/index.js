@@ -1,9 +1,14 @@
 const express = require('express');
-const app = express();
-const config = require('./utils/config');
 const mongoose = require('mongoose');
-const moviesRouter = require('./routes/movies');
+const app = express();
+
+// Utils
+const config = require('./utils/config');
 const logger = require('./utils/logger');
+
+// Routers
+const moviesRouter = require('./routes/movies');
+const usersRouter = require('./routes/users');
 
 mongoose.connect(config.MONGODB_URI)
 	.then(() => {
@@ -15,6 +20,7 @@ mongoose.connect(config.MONGODB_URI)
 
 app.use(express.json());
 app.use('/api/movies', moviesRouter);
+app.use('/api/users', usersRouter);
 
 const PORT = 3000;
 app.listen(PORT, () => {

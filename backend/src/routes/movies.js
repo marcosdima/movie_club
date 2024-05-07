@@ -1,4 +1,4 @@
-const movieService = require('../services/movieService');
+const movieService = require('../services/moviesService');
 const moviesRouter = require('express').Router();
 
 moviesRouter.get('/', async (req, res) => {
@@ -8,6 +8,11 @@ moviesRouter.get('/', async (req, res) => {
 
 moviesRouter.post('/', async (req, res) => {
     const newMovie = await movieService.addMovie(req.body);
+    res.json(newMovie);
+});
+
+moviesRouter.post('/many', async (req, res) => {
+    const newMovie = await movieService.addMovies(req.body);
     res.json(newMovie);
 });
 
