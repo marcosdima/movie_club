@@ -12,6 +12,13 @@ const userScheme = mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	groups: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Group',
+			unique: true
+		}
+	]
 });
 
 userScheme.set('toJSON', {

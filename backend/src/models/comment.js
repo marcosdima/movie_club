@@ -6,9 +6,9 @@ const commentScheme = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    movie: {
+    activity: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Movie'
+        ref: 'Activity'
     }
 });
 

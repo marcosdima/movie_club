@@ -11,12 +11,6 @@ const movieSchema = new mongoose.Schema({
 	},
   description: String,
   genres: [String],
-  comments: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Comment'
-    }
-  ],
   imageUrl: {
       type: String,
       required: true,
