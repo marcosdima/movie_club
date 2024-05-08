@@ -11,7 +11,7 @@ const middleware = require('./utils/middleware');
 const moviesRouter = require('./routes/movies');
 const usersRouter = require('./routes/users');
 const groupRouter = require('./routes/groups');
-const loginRouter = require('./routes/login')
+const loginRouter = require('./routes/login');
 
 mongoose.connect(config.MONGODB_URI)
 	.then(() => {

@@ -9,7 +9,7 @@ const addUser = async (data) => {
     const newUser = new user(data);
     await newUser.save();
     return newUser;
-}
+};
 
 module.exports = {
     getUser,
