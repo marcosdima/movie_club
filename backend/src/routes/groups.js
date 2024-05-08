@@ -2,15 +2,18 @@ const groupsService = require('../services/groupsService');
 const groupRouter = require('express').Router();
 
 groupRouter.get('/', async (req, res) => {
-    const { userId } = req.body;
-    const groups = await groupsService.getGroups(userId);
+    const { user } = req;
+    if (!user) return res.status(404).json({ error: { message: 'Token invalid' } })
+    const groups = await groupsService.getGroups(user.id);
     res.json(groups);
 });
 
 groupRouter.post('/', async (req, res) => {
-    const { userId, groupName } = req.body;
-    const groups = await groupsService.createGroup(groupName, userId);
-    res.json(groups);
+    const { groupName } = req.body;
+    const { user } = req;
+    if (!user) return res.status(404).json({ error: { message: 'Token invalid' } })
+    const group = await groupsService.createGroup(groupName, user.id);
+    res.json(group);
 });
 
 module.exports = groupRouter;
