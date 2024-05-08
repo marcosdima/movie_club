@@ -14,7 +14,8 @@ const userScheme = mongoose.Schema({
 			ref: 'Group',
 			unique: true
 		}
-	]
+	],
+	passwordHash: String
 });
 
 userScheme.set('toJSON', {
