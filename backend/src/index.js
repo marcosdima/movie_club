@@ -1,3 +1,4 @@
+require('express-async-errors');
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
@@ -12,6 +13,7 @@ const moviesRouter = require('./routes/moviesRouter');
 const usersRouter = require('./routes/usersRouter');
 const groupRouter = require('./routes/groupRouter');
 const loginRouter = require('./routes/loginRouter');
+const activitiesRouter = require('./routes/activitiesRouter');
 
 mongoose.connect(config.MONGODB_URI)
   .then(() => {
@@ -28,6 +30,7 @@ app.use('/api/movies', moviesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/groups', groupRouter);
 app.use('/api/login', loginRouter);
+app.use('/api/activities', activitiesRouter)
 
 const PORT = 3000;
 app.listen(PORT, () => {
