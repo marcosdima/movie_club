@@ -14,12 +14,12 @@ const groupRouter = require('./routes/groups');
 const loginRouter = require('./routes/login');
 
 mongoose.connect(config.MONGODB_URI)
-	.then(() => {
-		logger.info('connected to MongoDB');
-	})
-	.catch((error) => {
-		logger.error('error connecting to MongoDB:', error.message);
-	});
+  .then(() => {
+    logger.info('connected to MongoDB');
+  })
+  .catch((error) => {
+    logger.error('error connecting to MongoDB:', error.message);
+  });
 
 app.use(express.json());
 app.use(middleware.tokenExtractor);
@@ -31,5 +31,5 @@ app.use('/api/login', loginRouter);
 
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+  console.log(`Server listening on port ${PORT}`);
 });
