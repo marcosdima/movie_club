@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const logger = require('./logger')
 
 const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization');
@@ -8,7 +9,13 @@ const tokenExtractor = (request, response, next) => {
 };
 
 const userExtractor = (request, response, next) => {
-  if (request.token) request.user = jwt.verify(request.token, process.env.SECRET);
+  if (request.token) {
+    try {
+      request.user = jwt.verify(request.token, process.env.SECRET);
+    } catch(error){
+      logger.error(`Error: ${error.message}`);
+    }
+  }
   next();
 };
 
