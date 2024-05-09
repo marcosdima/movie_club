@@ -11,7 +11,8 @@ export default [
         "ObjectPattern": { "multiline": true },
         "ImportDeclaration": { "multiline": true, "minProperties": 3 },
         "ExportDeclaration": { "multiline": true, "minProperties": 3 }
-      }]
+      }],
+      "no-multiple-empty-lines": "error"
     },
     languageOptions: {
       sourceType: "commonjs"

@@ -8,10 +8,10 @@ const logger = require('./utils/logger');
 const middleware = require('./utils/middleware');
 
 // Routers
-const moviesRouter = require('./routes/movies');
-const usersRouter = require('./routes/users');
-const groupRouter = require('./routes/groups');
-const loginRouter = require('./routes/login');
+const moviesRouter = require('./routes/moviesRouter');
+const usersRouter = require('./routes/usersRouter');
+const groupRouter = require('./routes/groupRouter');
+const loginRouter = require('./routes/loginRouter');
 
 mongoose.connect(config.MONGODB_URI)
   .then(() => {
