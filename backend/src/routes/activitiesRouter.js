@@ -1,4 +1,5 @@
 const activitiesRouter = require('express').Router();
+const activity = require('../models/activity');
 const activitiesService = require('../services/activitiesService')
 const groupsService = require('../services/groupsService')
 
@@ -15,7 +16,7 @@ activitiesRouter.use(async (req, res, next) => {
     );
 
     // Checks if the group exists...
-    const { groupId } = req.body;
+    const { groupId } = req.body || req.body.activity.group;
     if (!groupId) return (
         res.status(400).json({ 
             error: { 
@@ -55,12 +56,17 @@ activitiesRouter.post('/', async (req, res) => {
     );
 
     const { group } = req;
-    const newActivity = activitiesService.createActivity(group.id, movieId);
+    const newActivity = await activitiesService.createActivity(group.id, movieId);
 
-    // TOTHINK: Maybe this should be handle by group sevice...
-    group.history.push(newActivity);
-    await group.save();
+    await groupsService.addNewActivity(group, newActivity);
     res.status(201).json(newActivity);
+});
+
+activitiesRouter.put('/', async (req, res) => {
+    // TODO: Check if watched and comments don't have elements repeated..
+    const { activityToUpdate } = req.body;
+    const activityUpdated = await activitiesService.updateActivity(activityToUpdate);
+    res.status(201).json(activityUpdated);
 });
 
 module.exports = activitiesRouter;
