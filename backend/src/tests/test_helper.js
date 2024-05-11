@@ -38,5 +38,5 @@ const rootData = () => ({
 
 module.exports = {
     exampleMovies,
-    rootData
+    rootData,
 }

@@ -22,7 +22,7 @@ describe('API Test...', () => {
             await api
                 .post('/api/users')
                 .send({})
-                .expect(401);
+                .expect(400);
         });
     });
     describe("Login...", () => {
@@ -64,6 +64,24 @@ describe('API Test...', () => {
             const token = await api
                 .post('/api/login')
                 .send({ username, password });
+        });
+        describe("Movies creation...", () => {
+            test('Create a movie', async () => {
+                const [movie] = helper.exampleMovies();
+                await api
+                    .post("/api/movies")
+                    .send(movie)
+                    .set('Authorization', `Bearer ${token}`) 
+                    .expect(201);
+            });
+            test('Create a movie without login', async () => {
+                const [movie] = helper.exampleMovies();
+                await api
+                    .post("/api/movies")
+                    .send(movie)
+                    .set('Authorization', 'Bearer notoken') 
+                    .expect(401);
+            });
         });
     });
 });

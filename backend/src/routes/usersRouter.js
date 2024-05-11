@@ -8,13 +8,16 @@ usersRouter.get('/', async (req, res) => {
 });
 
 usersRouter.post('/', async (req, res) => {
-  const { password } = req.body;
+  const { password, username, name, lastname } = req.body;
+  if (!password || !username || !name || !lastname) return res.status(400).json({ error: "missing fields" })
 
   // TODO: Research about the salt rounds...
   const saltRounds = 10;
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
-  const newUser = await usersService.addUser({ ...req.body, passwordHash });
+  if (!passwordHash) return res.status(401).json({ error: "wrong username or password" })
+
+  const newUser = await usersService.addUser({ username, name, lastname, passwordHash });
   res.status(201).json(newUser);
 });
 

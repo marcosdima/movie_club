@@ -4,9 +4,9 @@
   "description": "An app to provide support to my friends' movies club.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon ./src/index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "jest --verbose --runInBand"
   },
   "author": "Marcos Di Matteo",
   "license": "ISC",
