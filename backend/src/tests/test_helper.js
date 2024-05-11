@@ -1,3 +1,11 @@
+let token = null;
+
+const setToken = (newToken) => {
+    token = newToken;
+};
+
+const getToken = () => token;
+
 const exampleMovies = () => ([
     {
         title: "The Shawshank Redemption",
@@ -36,7 +44,11 @@ const rootData = () => ({
     password: 'root'
 })
 
+
+
 module.exports = {
     exampleMovies,
     rootData,
+    setToken,
+    getToken
 }

@@ -56,29 +56,31 @@ describe('API Test...', () => {
     describe("Activities with login required...", () => {
         beforeEach(async () => {
             await User.deleteMany({});
+            await Movie.deleteMany({});
             const { username, password } = helper.rootData();
             await api
                 .post('/api/users')
                 .send(helper.rootData())
                 .expect(201);
-            const token = await api
+            const { _body: { token }  } = await api
                 .post('/api/login')
                 .send({ username, password });
+            helper.setToken(token);
         });
         describe("Movies creation...", () => {
             test('Create a movie', async () => {
                 const [movie] = helper.exampleMovies();
                 await api
                     .post("/api/movies")
-                    .send(movie)
-                    .set('Authorization', `Bearer ${token}`) 
+                    .send({ movie })
+                    .set('Authorization', `Bearer ${helper.getToken()}`) 
                     .expect(201);
             });
             test('Create a movie without login', async () => {
                 const [movie] = helper.exampleMovies();
                 await api
                     .post("/api/movies")
-                    .send(movie)
+                    .send({ movie })
                     .set('Authorization', 'Bearer notoken') 
                     .expect(401);
             });

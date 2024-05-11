@@ -1,15 +1,15 @@
-const movie = require('../models/movie');
+const Movie = require('../models/movie');
 
-const getMovies = async () => await movie.find({});
+const getMovies = async () => await Movie.find({});
 
 const addMovie = async (data) => {
-  const newMovie = new movie(data);
+  const newMovie = new Movie(data);
   await newMovie.save();
   return newMovie;
 };
 
 const addMovies = async (data) => {
-  const newMovies = await movie.insertMany(data);
+  const newMovies = await Movie.insertMany(data);
   return newMovies;
 };
 
