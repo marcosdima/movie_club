@@ -58,7 +58,7 @@ describe('API Test...', () => {
             await User.deleteMany({});
             await Movie.deleteMany({});
             const { username, password } = helper.rootData();
-            await api
+            const { _body: {id} } = await api
                 .post('/api/users')
                 .send(helper.rootData())
                 .expect(201);
@@ -66,9 +66,10 @@ describe('API Test...', () => {
                 .post('/api/login')
                 .send({ username, password });
             helper.setToken(token);
+            helper.setId(id);
         });
         describe("Movies creation...", () => {
-            test('Create a movie', async () => {
+            test('Create a movie...', async () => {
                 const [movie] = helper.exampleMovies();
                 await api
                     .post("/api/movies")
@@ -83,6 +84,52 @@ describe('API Test...', () => {
                     .send({ movie })
                     .set('Authorization', 'Bearer notoken') 
                     .expect(401);
+            });
+            test('Create several movies...', async () => {
+                const movies = helper.exampleMovies();
+                await api
+                    .post("/api/movies/many")
+                    .send({ movies })
+                    .set('Authorization', `Bearer ${helper.getToken()}`) 
+                    .expect(201);
+            })
+            test('Create several movies without login', async () => {
+                const movies = helper.exampleMovies();
+                await api
+                    .post("/api/movies/many")
+                    .send({ movies })
+                    .set('Authorization', 'Bearer notoken') 
+                    .expect(401);
+            });
+        });
+        describe("Getting movies...", () => {
+            beforeEach(async () => {
+                const movies = helper.exampleMovies();
+                await api
+                    .post("/api/movies/many")
+                    .send({ movies })
+                    .set('Authorization', `Bearer ${helper.getToken()}`) 
+                    .expect(201);
+            });
+            test("All movies...", async () => {
+                const movies = helper.exampleMovies();
+                const { _body: moviesQuery } = await api
+                    .get("/api/movies")
+                    .expect(200);
+                const queryWithNoId = moviesQuery.map((movie) => {
+                    const { id, ...rest } = movie;
+                    return rest;
+                });
+                expect(queryWithNoId).toEqual(expect.arrayContaining(movies));
+            });
+            test("A movie...", async () => {
+                const { _body: [movie] } = await api
+                    .get("/api/movies")
+                    .expect(200);
+                const { _body: movieQuery } = await api
+                    .get(`/api/movies/${movie.id}`)
+                    .expect(200);   
+                expect(movieQuery).toEqual(movie);
             });
         });
     });

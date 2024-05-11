@@ -2,6 +2,8 @@ const Movie = require('../models/movie');
 
 const getMovies = async () => await Movie.find({});
 
+const getMovie = async (id) => await Movie.findById(id);
+
 const addMovie = async (data) => {
   const newMovie = new Movie(data);
   await newMovie.save();
@@ -15,6 +17,7 @@ const addMovies = async (data) => {
 
 module.exports = {
   getMovies,
+  getMovie,
   addMovie,
   addMovies
 };

@@ -8,6 +8,12 @@ moviesRouter.get('/', async (req, res) => {
   res.json(movies);
 });
 
+moviesRouter.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const movie = await movieService.getMovie(id);
+  res.json(movie)
+});
+
 moviesRouter.post('/', async (req, res) => {
   const { movie } = req.body;
   if (!movie) return res.status(400).json({ error: "missing movie field" })
@@ -27,7 +33,7 @@ moviesRouter.post('/many', async (req, res) => {
   if (!user) return res.status(401).json({ error: 'token invalid' });
 
   const newMovie = await movieService.addMovies(movies);
-  res.json(newMovie);
+  res.status(201).json(newMovie);
 });
 
 module.exports = moviesRouter;
