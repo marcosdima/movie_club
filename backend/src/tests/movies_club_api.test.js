@@ -4,6 +4,7 @@ const app = require('../app');
 const helper = require('./test_helper')
 const Movie = require('../models/movie');
 const User = require('../models/user');
+const Group = require('../models/group');
 
 const api = supertest(app);
 
@@ -98,7 +99,7 @@ describe('API Test...', () => {
                 await api
                     .post("/api/movies/many")
                     .send({ movies })
-                    .set('Authorization', 'Bearer notoken') 
+                    .set('Authorization', 'Bearer notoken')
                     .expect(401);
             });
         });
@@ -130,6 +131,35 @@ describe('API Test...', () => {
                     .get(`/api/movies/${movie.id}`)
                     .expect(200);   
                 expect(movieQuery).toEqual(movie);
+            });
+        });
+        describe("Groups functions...", () => {
+            beforeEach(async () => {
+                await Group.deleteMany({});
+            });
+            describe("Creating a new group...", () => {
+                test("with the right data.", async () => {
+                    const groupName = 'Testers';
+                    const { _body: { name: newGroupName } } = await api
+                        .post('/api/groups')
+                        .send({ groupName })
+                        .set('Authorization', `Bearer ${helper.getToken()}`) 
+                        .expect(201);
+                    expect(newGroupName).toBe(groupName);
+                });
+                test("with no data.", async () => {
+                    await api
+                        .post('/api/groups')
+                        .send({})
+                        .set('Authorization', `Bearer ${helper.getToken()}`) 
+                        .expect(400);
+                });
+                test("with no token.", async () => {
+                    await api
+                        .post('/api/groups')
+                        .send({ groupName: "A" })
+                        .expect(401);
+                });
             });
         });
     });
