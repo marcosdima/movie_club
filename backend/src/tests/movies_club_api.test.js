@@ -8,131 +8,102 @@ const Group = require('../models/group');
 
 const api = supertest(app);
 
+const post = async (route, objectToSend, options={}) => {
+    const { token, expectedStatus } = options;
+    const { _body: result } = await api
+        .post(`/api/${route}`)
+        .send(objectToSend)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(expectedStatus ?? 201);
+    return result;
+}
+
+const get = async (route, options={}) => {
+    const { token, expectedStatus } = options;
+    const { _body: result } = await api
+        .get(`/api/${route}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(expectedStatus ?? 200);
+    return result;
+}
+
 describe('API Test...', () => {
     describe("Create an user...", () => {
         beforeEach(async () => {
             await User.deleteMany({});
         });
         test("With the right data...", async () => {
-            await api
-                .post('/api/users')
-                .send(helper.rootData())
-                .expect(201);
+            await post('users', helper.rootData());
         });
         test("With no data at all...", async () => {
-            await api
-                .post('/api/users')
-                .send({})
-                .expect(400);
+            await post('users', {}, { expectedStatus: 400 });
         });
     });
     describe("Login...", () => {
         beforeEach(async () => {
             await User.deleteMany({});
-            await api
-                .post('/api/users')
-                .send(helper.rootData());
+            await post('users', helper.rootData());
         });
         test("Login with the right data...", async () => {
             const { username, password } = helper.rootData();
-            await api
-                .post('/api/login')
-                .send({ username, password })
-                .expect(200);
+            await post('login', { username, password }, { expectedStatus: 200 });
         });
         test("Login with the wrong data...", async () => {
             const { username, password } = helper.rootData();
-            await api
-                .post('/api/login')
-                .send({ username: "random", password:"password" })
-                .expect(401);
+            await post('login', { username: 'random', password: "123" }, { expectedStatus: 401 });
         });
         test("Login with no data...", async () => {
-            await api
-                .post('/api/login')
-                .send({})
-                .expect(400);
+            await post('login', {}, { expectedStatus: 400 });
         });
     });
     describe("Activities with login required...", () => {
+        let userToken;
         beforeEach(async () => {
             await User.deleteMany({});
             await Movie.deleteMany({});
             const { username, password } = helper.rootData();
-            const { _body: {id} } = await api
-                .post('/api/users')
-                .send(helper.rootData())
-                .expect(201);
-            const { _body: { token }  } = await api
-                .post('/api/login')
-                .send({ username, password });
-            helper.setToken(token);
-            helper.setId(id);
+            await post('users', helper.rootData())
+            const { token } = await post('login', { username, password }, { expectedStatus: 200 });
+            userToken = token;
         });
-        describe("Movies creation...", () => {
-            test('Create a movie...', async () => {
-                const [movie] = helper.exampleMovies();
-                await api
-                    .post("/api/movies")
-                    .send({ movie })
-                    .set('Authorization', `Bearer ${helper.getToken()}`) 
-                    .expect(201);
-            });
-            test('Create a movie without login', async () => {
-                const [movie] = helper.exampleMovies();
-                await api
-                    .post("/api/movies")
-                    .send({ movie })
-                    .set('Authorization', 'Bearer notoken') 
-                    .expect(401);
-            });
-            test('Create several movies...', async () => {
-                const movies = helper.exampleMovies();
-                await api
-                    .post("/api/movies/many")
-                    .send({ movies })
-                    .set('Authorization', `Bearer ${helper.getToken()}`) 
-                    .expect(201);
-            })
-            test('Create several movies without login', async () => {
-                const movies = helper.exampleMovies();
-                await api
-                    .post("/api/movies/many")
-                    .send({ movies })
-                    .set('Authorization', 'Bearer notoken')
-                    .expect(401);
-            });
-        });
-        describe("Getting movies...", () => {
-            beforeEach(async () => {
-                const movies = helper.exampleMovies();
-                await api
-                    .post("/api/movies/many")
-                    .send({ movies })
-                    .set('Authorization', `Bearer ${helper.getToken()}`) 
-                    .expect(201);
-            });
-            test("All movies...", async () => {
-                const movies = helper.exampleMovies();
-                const { _body: moviesQuery } = await api
-                    .get("/api/movies")
-                    .expect(200);
-                const queryWithNoId = moviesQuery.map((movie) => {
-                    const { id, ...rest } = movie;
-                    return rest;
+        describe("Movies functions...", () => {
+            describe("Movies creation...", () => {
+                test('Create a movie...', async () => {
+                    const [movie] = helper.exampleMovies();
+                    await post('movies', { movie }, { token: userToken })
                 });
-                expect(queryWithNoId).toEqual(expect.arrayContaining(movies));
+                test('Create a movie without login', async () => {
+                    const [movie] = helper.exampleMovies();
+                    await post('movies', { movie }, { expectedStatus: 401 })
+                });
+                test('Create several movies...', async () => {
+                    const movies = helper.exampleMovies();
+                    await post('movies/many', { movies }, { token: userToken });
+                })
+                test('Create several movies without login', async () => {
+                    const movies = helper.exampleMovies();
+                    await post('movies/many', { movies }, { expectedStatus: 401 });
+                });
             });
-            test("A movie...", async () => {
-                const { _body: [movie] } = await api
-                    .get("/api/movies")
-                    .expect(200);
-                const { _body: movieQuery } = await api
-                    .get(`/api/movies/${movie.id}`)
-                    .expect(200);   
-                expect(movieQuery).toEqual(movie);
+            describe("Getting movies...", () => {
+                beforeEach(async () => {
+                    const movies = helper.exampleMovies();
+                    await post('movies/many', { movies }, { token: userToken });
+                });
+                test("All movies...", async () => {
+                    const movies = helper.exampleMovies();
+                    const moviesQuery = await get('movies');
+                    // 'movies' doesn't have a property 'id', so to check if are the same I'll remove it from the query.
+                    const queryWithNoId = moviesQuery.map(({ id, ...rest }) => rest);
+                    expect(queryWithNoId).toEqual(expect.arrayContaining(movies));
+                });
+                test("A movie...", async () => {
+                    const [movie] = await get('movies');
+                    const movieQuery = await get(`movies/${movie.id}`);
+                    expect(movieQuery).toEqual(movie);
+                });
             });
-        });
+        });       
         describe("Groups functions...", () => {
             beforeEach(async () => {
                 await Group.deleteMany({});
@@ -140,25 +111,14 @@ describe('API Test...', () => {
             describe("Creating a new group...", () => {
                 test("with the right data.", async () => {
                     const groupName = 'Testers';
-                    const { _body: { name: newGroupName } } = await api
-                        .post('/api/groups')
-                        .send({ groupName })
-                        .set('Authorization', `Bearer ${helper.getToken()}`) 
-                        .expect(201);
+                    const  { name: newGroupName } = await post('groups', { groupName }, { token: userToken });
                     expect(newGroupName).toBe(groupName);
                 });
                 test("with no data.", async () => {
-                    await api
-                        .post('/api/groups')
-                        .send({})
-                        .set('Authorization', `Bearer ${helper.getToken()}`) 
-                        .expect(400);
+                    await post('groups', {}, { token: userToken, expectedStatus: 400 });
                 });
                 test("with no token.", async () => {
-                    await api
-                        .post('/api/groups')
-                        .send({ groupName: "A" })
-                        .expect(401);
+                    await post('groups',  { groupName: 'A' }, { expectedStatus: 401 });
                 });
             });
         });

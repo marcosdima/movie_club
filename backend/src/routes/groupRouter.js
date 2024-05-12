@@ -20,8 +20,10 @@ groupRouter.get('/:id', async (req, res) => {
 groupRouter.post('/', async (req, res) => {
   const { groupName } = req.body;
   if (!groupName) return res.status(400).json({ error: "missing groupName field" });
+
   const { user } = req;
   if (!user) return res.status(401).json({ error: 'token invalid' });
+
   const group = await groupsService.createGroup(groupName, user.id);
   res.status(201).json(group);
 });
