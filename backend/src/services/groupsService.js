@@ -1,6 +1,4 @@
 const Group = require('../models/group');
-const Activity = require('../models/activity');
-const group = require('../models/group');
 
 const getGroups = async (userId) => Group.find({ members: userId }).populate('members');
 
@@ -22,20 +20,19 @@ const getGroup = async (groupId) => (
 
 const updateGroup = async (groupToUpdate) => {
   const groupUpdated = await Group.findByIdAndUpdate(
-    groupToUpdate.id,
+    groupToUpdate._id,
     groupToUpdate,
     { new: true, runValidators: true, context: 'query' }
   )
-
   return groupUpdated;
 };
 
-const addNewActivity = async (group, activity) => {
+const addNewActivity = async (groupId, activity) => {
+  const groupQuery = await Group.findById(groupId);
   const groupToUpdate = {
-    ...group,
-    history: group.history.concat(activity)
+    ...groupQuery.toObject(),
+    history: groupQuery.history.concat(activity)
   };
-  
   return await updateGroup(groupToUpdate);
 };
 

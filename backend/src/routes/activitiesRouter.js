@@ -55,10 +55,10 @@ activitiesRouter.post('/', async (req, res) => {
         })
     );
 
-    const { group } = req;
-    const newActivity = await activitiesService.createActivity(group.id, movieId);
+    const { group: { id } } = req;
+    const newActivity = await activitiesService.createActivity(id, movieId);
 
-    await groupsService.addNewActivity(group, newActivity);
+    await groupsService.addNewActivity(id, newActivity);
     res.status(201).json(newActivity);
 });
 

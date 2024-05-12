@@ -5,6 +5,7 @@ const helper = require('./test_helper')
 const Movie = require('../models/movie');
 const User = require('../models/user');
 const Group = require('../models/group');
+const Activity = require('../models/activity');
 
 const api = supertest(app);
 
@@ -119,6 +120,59 @@ describe('API Test...', () => {
                 });
                 test("with no token.", async () => {
                     await post('groups',  { groupName: 'A' }, { expectedStatus: 401 });
+                });
+            });
+        });
+        describe("Activity functions...", () => {
+            let groupId;
+            let movieId;
+            const groupName = 'Group Name'
+            beforeEach(async () => {
+                await Group.deleteMany({});
+                await Movie.deleteMany({});
+                await Activity.deleteMany({});
+                const [movieExample] = helper.exampleMovies()
+                const { id: groupIdQuery } = await post('groups', { groupName }, { token: userToken });
+                const { id: movieIdQuery } = await post('movies', { movie: movieExample }, { token: userToken });
+                groupId = groupIdQuery;
+                movieId = movieIdQuery;
+            });
+            describe("Create an activity...", () => {
+                test("with the right data.", async () => {
+                    const { movie: movieIdQuery, group: groupIdQuery } = await post(
+                        'activities', 
+                        { movieId, groupId }, 
+                        { token:userToken }
+                    );
+                    expect(movieIdQuery).toBe(movieId);
+                    expect(groupIdQuery).toBe(groupId);
+                });
+                test("with the wrong data.", async () => {
+                    await post(
+                        'activities', 
+                        { movieId: "", groupId: "" }, 
+                        { token:userToken, expectedStatus: 400 }
+                    );
+
+                });
+                test("with no data.", async () => {
+                    await post(
+                        'activities', 
+                        {}, 
+                        { token:userToken, expectedStatus: 400 }
+                    );
+                });
+                test("Test group history update...", async () => {
+                    const { history } = await get(`groups/${groupId}`, { token: userToken });
+                    expect(history.length).toBe(0);
+                    await post(
+                        'activities', 
+                        { movieId, groupId }, 
+                        { token:userToken }
+                    );
+                    const { history: historyAfterCreation } = await get(`groups/${groupId}`, { token: userToken });
+                    console.log(historyAfterCreation)
+                    expect(historyAfterCreation.length).toBe(1);
                 });
             });
         });
