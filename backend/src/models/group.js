@@ -6,14 +6,12 @@ const groupScheme = mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      unique: true
     }
   ],
   history: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Activity',
-      unique: true
     }
   ]
 });

@@ -1,6 +1,10 @@
 const Group = require('../models/group');
 
-const getGroups = async (userId) => Group.find({ members: userId }).populate('members');
+const getGroups = async (userId) => (
+  Group.find({ members: userId })
+    .populate('members')
+    .populate('history')
+);
 
 const createGroup = async (name, creatorId) => {
   const data = {
