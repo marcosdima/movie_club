@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const logger = require('./logger')
+const groupsService = require('../services/groupsService')
 
 const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization');
@@ -19,7 +20,14 @@ const userExtractor = (request, response, next) => {
   next();
 };
 
+const groupExtractor = async (request, response, next) => {
+  const groupId = request.body.groupId;
+  if (groupId) request.group = await groupsService.getGroup(request.body.groupId);
+  next()
+}
+
 module.exports = {
   tokenExtractor,
-  userExtractor
+  userExtractor,
+  groupExtractor
 };

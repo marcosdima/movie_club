@@ -1,5 +1,4 @@
 const activitiesRouter = require('express').Router();
-const activity = require('../models/activity');
 const activitiesService = require('../services/activitiesService')
 const groupsService = require('../services/groupsService')
 
@@ -24,10 +23,9 @@ activitiesRouter.use(async (req, res, next) => {
             } 
         })
     );
-    const group = await groupsService.getGroup(groupId)
 
     // Checks if user belongs to the group...
-    const belongs = group.members.find((member) => member.id === user.id)
+    const belongs = req?.group.members.find((member) => member.id === user.id)
     if (!belongs) return (
         res.status(400).json({ 
             error: { 
@@ -36,7 +34,6 @@ activitiesRouter.use(async (req, res, next) => {
         })
     );
 
-    req.group = group;
     next();
 });
 

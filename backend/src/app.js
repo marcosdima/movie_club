@@ -26,6 +26,7 @@ mongoose.connect(config.MONGODB_URI)
 app.use(express.json());
 app.use(middleware.tokenExtractor);
 app.use(middleware.userExtractor);
+app.use(middleware.groupExtractor)
 app.use('/api/movies', moviesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/groups', groupRouter);
