@@ -30,7 +30,7 @@ const get = async (route, options={}) => {
 }
 
 describe('API Test...', () => {
-    describe.only("Users...", () => {
+    describe("Users...", () => {
         describe("Create an user...", () => {
             beforeEach(async () => {
                 await User.deleteMany({});
@@ -197,7 +197,7 @@ describe('API Test...', () => {
                         { token: rootToken }
                     );
                     const { history: historyAfterCreation } = await get(`groups/${groupId}`, { token: rootToken });
-                    console.log(historyAfterCreation)
+
                     expect(historyAfterCreation.length).toBe(1);
                 });
             });
