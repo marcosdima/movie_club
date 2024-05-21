@@ -13,8 +13,8 @@ invitationRouter.use(async (req, res, next) => {
 })
 
 invitationRouter.get('/', async (req, res) => {
-    const { data } = await invitationsService.getInvitations({ to: req.user.id });
-    return res.json(data);
+    const invitations = await invitationsService.getInvitations({ to: req.user.id });
+    return res.json(invitations);
 });
 
 invitationRouter.get('/:from/to/:to', async (req, res) => {
