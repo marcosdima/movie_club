@@ -36,9 +36,15 @@ const rootData = () => ({
     password: 'root'
 })
 
-
+const auxUserData = () => ({
+    username: 'test',
+    name: 'tester',
+    lastname: 'testing',
+    password: '1234'
+})
 
 module.exports = {
     exampleMovies,
     rootData,
+    auxUserData,
 }

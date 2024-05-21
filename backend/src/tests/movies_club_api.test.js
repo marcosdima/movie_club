@@ -6,6 +6,7 @@ const Movie = require('../models/movie');
 const User = require('../models/user');
 const Group = require('../models/group');
 const Activity = require('../models/activity');
+const Invitation = require('../models/invitation');
 
 const api = supertest(app);
 
@@ -58,20 +59,25 @@ describe('API Test...', () => {
         });
     });
     describe("Activities with login required...", () => {
-        let userToken;
+        let rootToken;
+        let rootId;
+        let auxUserId;
         beforeEach(async () => {
             await User.deleteMany({});
             await Movie.deleteMany({});
             const { username, password } = helper.rootData();
-            await post('users', helper.rootData())
+            const { id } = await post('users', helper.rootData())
+            const { id: idAux } = await post('users', helper.auxUserData())
             const { token } = await post('login', { username, password }, { expectedStatus: 200 });
-            userToken = token;
+            rootToken = token;
+            rootId = id;
+            auxUserId = idAux;
         });
         describe("Movies functions...", () => {
             describe("Movies creation...", () => {
                 test('Create a movie...', async () => {
                     const [movie] = helper.exampleMovies();
-                    await post('movies', { movie }, { token: userToken })
+                    await post('movies', { movie }, { token: rootToken })
                 });
                 test('Create a movie without login', async () => {
                     const [movie] = helper.exampleMovies();
@@ -79,7 +85,7 @@ describe('API Test...', () => {
                 });
                 test('Create several movies...', async () => {
                     const movies = helper.exampleMovies();
-                    await post('movies/many', { movies }, { token: userToken });
+                    await post('movies/many', { movies }, { token: rootToken });
                 })
                 test('Create several movies without login', async () => {
                     const movies = helper.exampleMovies();
@@ -89,7 +95,7 @@ describe('API Test...', () => {
             describe("Getting movies...", () => {
                 beforeEach(async () => {
                     const movies = helper.exampleMovies();
-                    await post('movies/many', { movies }, { token: userToken });
+                    await post('movies/many', { movies }, { token: rootToken });
                 });
                 test("All movies...", async () => {
                     const movies = helper.exampleMovies();
@@ -112,11 +118,11 @@ describe('API Test...', () => {
             describe("Creating a new group...", () => {
                 test("with the right data.", async () => {
                     const groupName = 'Testers';
-                    const  { name: newGroupName } = await post('groups', { groupName }, { token: userToken });
+                    const  { name: newGroupName } = await post('groups', { groupName }, { token: rootToken });
                     expect(newGroupName).toBe(groupName);
                 });
                 test("with no data.", async () => {
-                    await post('groups', {}, { token: userToken, expectedStatus: 400 });
+                    await post('groups', {}, { token: rootToken, expectedStatus: 400 });
                 });
                 test("with no token.", async () => {
                     await post('groups',  { groupName: 'A' }, { expectedStatus: 401 });
@@ -132,8 +138,8 @@ describe('API Test...', () => {
                 await Movie.deleteMany({});
                 await Activity.deleteMany({});
                 const [movieExample] = helper.exampleMovies()
-                const { id: groupIdQuery } = await post('groups', { groupName }, { token: userToken });
-                const { id: movieIdQuery } = await post('movies', { movie: movieExample }, { token: userToken });
+                const { id: groupIdQuery } = await post('groups', { groupName }, { token: rootToken });
+                const { id: movieIdQuery } = await post('movies', { movie: movieExample }, { token: rootToken });
                 groupId = groupIdQuery;
                 movieId = movieIdQuery;
             });
@@ -142,7 +148,7 @@ describe('API Test...', () => {
                     const { movie: movieIdQuery, group: groupIdQuery } = await post(
                         'activities', 
                         { movieId, groupId }, 
-                        { token:userToken }
+                        { token: rootToken }
                     );
                     expect(movieIdQuery).toBe(movieId);
                     expect(groupIdQuery).toBe(groupId);
@@ -151,7 +157,7 @@ describe('API Test...', () => {
                     await post(
                         'activities', 
                         { movieId: "", groupId: "" }, 
-                        { token:userToken, expectedStatus: 400 }
+                        { token: rootToken, expectedStatus: 400 }
                     );
 
                 });
@@ -159,23 +165,39 @@ describe('API Test...', () => {
                     await post(
                         'activities', 
                         {}, 
-                        { token:userToken, expectedStatus: 400 }
+                        { token: rootToken, expectedStatus: 400 }
                     );
                 });
                 test("Test group history update...", async () => {
-                    const { history } = await get(`groups/${groupId}`, { token: userToken });
+                    const { history } = await get(`groups/${groupId}`, { token: rootToken });
                     expect(history.length).toBe(0);
                     await post(
                         'activities', 
                         { movieId, groupId }, 
-                        { token:userToken }
+                        { token: rootToken }
                     );
-                    const { history: historyAfterCreation } = await get(`groups/${groupId}`, { token: userToken });
+                    const { history: historyAfterCreation } = await get(`groups/${groupId}`, { token: rootToken });
                     console.log(historyAfterCreation)
                     expect(historyAfterCreation.length).toBe(1);
                 });
             });
         });
+        describe.only("Invitations...", () => {
+            let groupId;
+            beforeEach(async () => {
+                await Group.deleteMany({});
+                await Invitation.deleteMany({});
+                const { id: groupIdQuery } = await post('groups', { groupName: 'Group Name' }, { token: rootToken });
+                groupId = groupIdQuery;
+            });
+            test("Create an invitation", async () => {
+                const { group, accepted } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken })
+                expect(group).toBe(groupId);
+                const { length } = await Invitation.find({});
+                expect(length).toBe(1);
+                expect(accepted).toBe(null);
+            });
+        })
     });
 });
 
