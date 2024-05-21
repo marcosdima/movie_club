@@ -14,6 +14,7 @@ const usersRouter = require('./routes/usersRouter');
 const groupRouter = require('./routes/groupRouter');
 const loginRouter = require('./routes/loginRouter');
 const activitiesRouter = require('./routes/activitiesRouter');
+const invitationRouter = require('./routes/invitationRouter');
 
 mongoose.connect(config.MONGODB_URI)
   .then(() => {
@@ -32,5 +33,6 @@ app.use('/api/users', usersRouter);
 app.use('/api/groups', groupRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/activities', activitiesRouter)
+app.use('/api/invitations', invitationRouter);
 
 module.exports = app;
