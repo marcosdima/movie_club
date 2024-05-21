@@ -30,16 +30,36 @@ const get = async (route, options={}) => {
 }
 
 describe('API Test...', () => {
-    describe("Create an user...", () => {
-        beforeEach(async () => {
-            await User.deleteMany({});
+    describe.only("Users...", () => {
+        describe("Create an user...", () => {
+            beforeEach(async () => {
+                await User.deleteMany({});
+            });
+            test("With the right data...", async () => {
+                await post('users', helper.rootData());
+            });
+            test("With no data at all...", async () => {
+                await post('users', {}, { expectedStatus: 400 });
+            });
         });
-        test("With the right data...", async () => {
-            await post('users', helper.rootData());
-        });
-        test("With no data at all...", async () => {
-            await post('users', {}, { expectedStatus: 400 });
-        });
+        describe("Get users...", () => {
+            let rootId;
+            beforeEach(async () => {
+                await User.deleteMany({});
+                const { id } = await post('users', helper.rootData())
+                await post('users', helper.auxUserData())
+                rootId = id;
+            });
+            test("Get all...", async () => {
+                const { length } = await get("users");
+                expect(length).toBe(2);
+            });
+            test("Get one...", async () => {
+                const { username } = await get(`users/${rootId}`);
+                const { username: rootName } = helper.rootData();
+                expect(username).toBe(rootName);
+            });
+        })
     });
     describe("Login...", () => {
         beforeEach(async () => {
