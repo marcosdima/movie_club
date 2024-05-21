@@ -182,7 +182,7 @@ describe('API Test...', () => {
                 });
             });
         });
-        describe.only("Invitations...", () => {
+        describe("Invitations...", () => {
             let groupId;
             beforeEach(async () => {
                 await Group.deleteMany({});
@@ -190,12 +190,32 @@ describe('API Test...', () => {
                 const { id: groupIdQuery } = await post('groups', { groupName: 'Group Name' }, { token: rootToken });
                 groupId = groupIdQuery;
             });
-            test("Create an invitation", async () => {
-                const { group, accepted } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken })
-                expect(group).toBe(groupId);
-                const { length } = await Invitation.find({});
-                expect(length).toBe(1);
-                expect(accepted).toBe(null);
+            describe("Create an invitation...", () => {
+                test("with the right data...", async () => {
+                    const { group, accepted } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken })
+                    expect(group).toBe(groupId);
+                    const { length } = await Invitation.find({});
+                    expect(length).toBe(1);
+                    expect(accepted).toBe(null);
+                });
+                test("with no token...", async () => {
+                    await post('invitations', { to: auxUserId, groupId }, { expectedStatus: 401 })
+                    const { length } = await Invitation.find({});
+                    expect(length).toBe(0);
+                });
+                test("with no data...", async () => {
+                    await post('invitations', {}, { token: rootToken, expectedStatus: 400 })
+                    const { length } = await Invitation.find({});
+                    expect(length).toBe(0);
+                });
+                test("with the right data, but already exists an invitation...", async () => {
+                    await post('invitations', { to: auxUserId, groupId }, { token: rootToken })
+                    const { length } = await Invitation.find({});
+                    expect(length).toBe(1)
+                    await post('invitations', { to: auxUserId, groupId }, { token: rootToken, expectedStatus: 409 })
+                    const { length: lengthPost } = await Invitation.find({});
+                    expect(lengthPost).toBe(1)
+                });
             });
         })
     });

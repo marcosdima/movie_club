@@ -1,6 +1,8 @@
 const Invitation = require("../models/invitation");
 
-const getInvitations = async (from, to) => await Invitation.find({ to, from });
+const getInvitations = async (query) => await Invitation.find(query);
+
+const getInvitation = async (query) => await Invitation.findOne(query);
 
 const createInvitation = async (invitation) => {
     const newInvitation = new Invitation(invitation);
@@ -9,5 +11,6 @@ const createInvitation = async (invitation) => {
 
 module.exports = {
     getInvitations,
+    getInvitation,
     createInvitation
 };

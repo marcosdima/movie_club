@@ -13,7 +13,7 @@ invitationRouter.use(async (req, res, next) => {
 })
 
 invitationRouter.get('/', async (req, res) => {
-    const { data } = await invitationsService.getInvitations(to=req.user.id);
+    const { data } = await invitationsService.getInvitations({ to: req.user.id });
     return res.json(data);
 });
 
@@ -26,7 +26,7 @@ invitationRouter.get('/:from/to/:to', async (req, res) => {
             message: "Missing fields 'from' and/or 'to'"
         }
     });
-    const newInvitation = await invitationsService.getInvitations(from, to)
+    const newInvitation = await invitationsService.getInvitations({ from, to });
 
     // Checks if exist any invitation to this user...
     if (!newInvitation) return res.status(404).json({
@@ -44,6 +44,14 @@ invitationRouter.post('/', async (req, res) => {
     if (!to || !groupId) return res.status(400).json({
         error: {
             message: "Missing fields 'to' and/or 'groupId'"
+        }
+    });
+
+    // Check if already exists an invitation...
+    const alreadyExists = await invitationsService.getInvitation({ to, from, group: groupId });
+    if (alreadyExists) return res.status(409).json({
+        error: {
+            message: "There is already an invitation for this user to this group..."
         }
     });
 
