@@ -17,6 +17,12 @@ invitationRouter.get('/', async (req, res) => {
     return res.json(invitations);
 });
 
+invitationRouter.get('/:id', async (req, res) => {
+    const { id } = req.params;
+    const invitation = await invitationsService.getInvitationById(id);
+    return res.json(invitation);
+});
+
 invitationRouter.get('/:from/to/:to', async (req, res) => {
     const { from, to } = req.body;
 
@@ -47,7 +53,7 @@ invitationRouter.post('/', async (req, res) => {
         }
     });
 
-    // Check if already exists an invitation...
+    // Check if already exists an invitation... TOFIX: Has to comprobe if accepted is null.
     const alreadyExists = await invitationsService.getInvitation({ to, from, group: groupId });
     if (alreadyExists) return res.status(409).json({
         error: {
@@ -58,6 +64,24 @@ invitationRouter.post('/', async (req, res) => {
     const data = await invitationsService.createInvitation({ from, to, group: groupId });
 
     return res.status(201).json(data);
+});
+
+invitationRouter.put('/:id', async (req, res) => {
+    const { accepted } = req.body;
+    if (!accepted) return res.status(400).json({ error: 'missing field accepted' });
+
+    const { id } = req.params;
+    const invitation = await invitationsService.getInvitationById(id);
+
+    // Check if invitation exists...
+    if (!invitation) return res.status(404).json({ error: 'Invitation does not exist' });
+
+    // Check if invitation was updated before...
+    if (invitation.accepted) return res.status(403).json({ error: 'Invitation was already responded' });
+
+    const data = await invitationsService.updateInvitation(id, accepted);
+
+    return res.json(data);
 });
 
 
