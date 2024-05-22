@@ -29,6 +29,16 @@ const get = async (route, options={}) => {
     return result;
 }
 
+const put = async (route, id, updatedObject, options={}) => {
+    const { token, expectedStatus } = options;
+    const { _body: result } = await api
+        .put(`/api/${route}/${id}`)
+        .send(updatedObject)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(expectedStatus ?? 200);
+    return result;
+}
+
 describe('API Test...', () => {
     describe("Users...", () => {
         describe("Create an user...", () => {
@@ -212,7 +222,7 @@ describe('API Test...', () => {
             });
             describe("Create an invitation...", () => {
                 test("with the right data...", async () => {
-                    const { group, accepted } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken })
+                    const { group, accepted } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken });
                     expect(group).toBe(groupId);
                     const { length } = await Invitation.find({});
                     expect(length).toBe(1);
@@ -237,6 +247,26 @@ describe('API Test...', () => {
                     expect(lengthPost).toBe(1)
                 });
             });
+            describe.only("Update an invitation...", () => {
+                let invitationId;
+                beforeEach(async () => {
+                    await Invitation.deleteMany({});
+                    const { id } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken });
+                    invitationId = id;
+                })
+                test("with the right data.", async () => {
+                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: rootToken });
+                    expect(acceptedUpdated).toBe(true)
+                });
+                test("that already was updated.", async () => {
+                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: rootToken });
+                    expect(acceptedUpdated).toBe(true);
+                    await put('invitations', invitationId, { accepted: true }, { token: rootToken, expectedStatus: 403 });
+                });
+                test("with the wrong data.", async () => {
+                    await put('invitations', invitationId, { accepted: null }, { token: rootToken, expectedStatus: 400 });
+                });
+            })
         })
     });
 });
