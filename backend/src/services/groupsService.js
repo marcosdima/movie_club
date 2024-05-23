@@ -40,9 +40,21 @@ const addNewActivity = async (groupId, activity) => {
   return await updateGroup(groupToUpdate);
 };
 
+const addNewMember = async (groupId, newMemberId) => {
+  const groupQuery = await Group.findById(groupId);
+
+  const groupToUpdate = {
+    ...groupQuery.toObject(),
+    members: groupQuery.members.concat(newMemberId)
+  };
+
+  return await updateGroup(groupToUpdate);
+};
+
 module.exports = {
   getGroups,
   createGroup,
   getGroup,
-  addNewActivity
+  addNewActivity,
+  addNewMember
 };
