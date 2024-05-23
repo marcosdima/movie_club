@@ -13,7 +13,7 @@ invitationRouter.use(async (req, res, next) => {
 })
 
 invitationRouter.get('/', async (req, res) => {
-    const invitations = await invitationsService.getInvitations({ to: req.user.id });
+    const invitations = await invitationsService.getInvitations({ to: req.user.id, accepted: null });
     return res.json(invitations);
 });
 
@@ -48,17 +48,31 @@ invitationRouter.post('/', async (req, res) => {
     const { to, groupId } = req.body;
 
     if (!to || !groupId) return res.status(400).json({
-        error: {
-            message: "Missing fields 'to' and/or 'groupId'"
-        }
+        error: "Missing fields 'to' and/or 'groupId'"
     });
 
-    // Check if already exists an invitation... TOFIX: Has to comprobe if accepted is null.
-    const alreadyExists = await invitationsService.getInvitation({ to, from, group: groupId });
+    // Checks if the group with the groupId exists...
+    const { members } = req.group;
+    if (!members) return res.status(403).json({
+        error: 'groupId does not correspond to an existent group'
+    });
+
+    // Checks if the creator is member of the group...
+    const creatorBelongsToGroup = members.find(({ id }) => id === from);
+    if (!creatorBelongsToGroup) return res.status(403).json({
+        error: 'you are not a member of the group, so you can not create an invitation'
+    });
+
+    // Checks if the invitation was sended to a group member
+    const targetBelongsToGroup = members.find(({ id }) => id === to);
+    if (targetBelongsToGroup) return res.status(403).json({
+        error: 'user already belongs to the group'
+    });
+
+    // Checks if already exists an invitation...
+    const alreadyExists = await invitationsService.getInvitation({ to, from, group: groupId, accepted: null });
     if (alreadyExists) return res.status(409).json({
-        error: {
-            message: "There is already an invitation for this user to this group..."
-        }
+            error: "There is already an invitation for this user to this group..."
     });
 
     const data = await invitationsService.createInvitation({ from, to, group: groupId });
@@ -73,11 +87,15 @@ invitationRouter.put('/:id', async (req, res) => {
     const { id } = req.params;
     const invitation = await invitationsService.getInvitationById(id);
 
-    // Check if invitation exists...
+    // Checks if invitation exists...
     if (!invitation) return res.status(404).json({ error: 'Invitation does not exist' });
-
-    // Check if invitation was updated before...
+    
+    // Checks if invitation was updated before...
     if (invitation.accepted) return res.status(403).json({ error: 'Invitation was already responded' });
+
+    // Checks if the user is the owner of the invitation...
+    const { user: { id: userId, username } } = req;
+    if (invitation.to.toString() !== userId) return res.status(403).json({ error: `Invitation does not belongs to '${username}'` });
 
     const data = await invitationsService.updateInvitation(id, accepted);
 
