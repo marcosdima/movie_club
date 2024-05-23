@@ -15,7 +15,7 @@ const post = async (route, objectToSend, options={}) => {
     const { _body: result } = await api
         .post(`/api/${route}`)
         .send(objectToSend)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', token ? `Bearer ${token}` : '')
         .expect(expectedStatus ?? 201);
     return result;
 }
@@ -24,7 +24,7 @@ const get = async (route, options={}) => {
     const { token, expectedStatus } = options;
     const { _body: result } = await api
         .get(`/api/${route}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', token ? `Bearer ${token}` : '')
         .expect(expectedStatus ?? 200);
     return result;
 }
@@ -34,7 +34,7 @@ const put = async (route, id, updatedObject, options={}) => {
     const { _body: result } = await api
         .put(`/api/${route}/${id}`)
         .send(updatedObject)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', token ? `Bearer ${token}` : '')
         .expect(expectedStatus ?? 200);
     return result;
 }
@@ -246,20 +246,37 @@ describe('API Test...', () => {
                     const { length: lengthPost } = await Invitation.find({});
                     expect(lengthPost).toBe(1)
                 });
+                test("to a member of the group.", async () => {
+                    await post('invitations', { to: rootId, groupId }, { token: rootToken, expectedStatus: 403 });
+                });
+                test("to a member of the group.", async () => {
+                    await post('invitations', { to: rootId, groupId }, { token: rootToken, expectedStatus: 403 });
+                    const { length } = await Invitation.find({});
+                    expect(length).toBe(0);
+                });
+                test("with an group id malformatted.", async () => {
+                    await post('invitations', { to: rootId, groupId: 'a' }, { token: rootToken, expectedStatus: 400 });
+                    const { length } = await Invitation.find({});
+                    expect(length).toBe(0);
+                });
             });
-            describe.only("Update an invitation...", () => {
+            describe("Update an invitation...", () => {
                 let invitationId;
+                let auxToken;
                 beforeEach(async () => {
                     await Invitation.deleteMany({});
                     const { id } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken });
+                    const { username, password } = helper.auxUserData();
+                    const { token } = await post('login', { username, password }, { expectedStatus: 200 });
                     invitationId = id;
+                    auxToken = token;
                 })
                 test("with the right data.", async () => {
-                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: rootToken });
+                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: auxToken });
                     expect(acceptedUpdated).toBe(true)
                 });
                 test("that already was updated.", async () => {
-                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: rootToken });
+                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: auxToken });
                     expect(acceptedUpdated).toBe(true);
                     await put('invitations', invitationId, { accepted: true }, { token: rootToken, expectedStatus: 403 });
                 });
