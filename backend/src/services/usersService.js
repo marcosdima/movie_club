@@ -1,6 +1,6 @@
 const user = require('../models/user');
-const bcrypt = require('bcrypt');
 
+// TODO: ask to populate...
 const getUser = async (id) => await user.findById(id);
 
 const getUsers = async () => await user.find({});
