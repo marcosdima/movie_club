@@ -34,5 +34,7 @@ app.use('/api/groups', groupRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/activities', activitiesRouter)
 app.use('/api/invitations', invitationRouter);
+app.use(middleware.errorHandler);
+app.use(middleware.unknownEndpoint);
 
 module.exports = app;
