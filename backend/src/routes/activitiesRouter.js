@@ -27,7 +27,7 @@ activitiesRouter.use(async (req, res, next) => {
     // Checks if user belongs to the group...
     const belongs = req?.group.members.find((member) => member.id === user.id)
     if (!belongs) return (
-        res.status(400).json({ 
+        res.status(403).json({ 
             error: { 
                 message: `User ${user.username} does not belong to group ${group.name}`
             }
