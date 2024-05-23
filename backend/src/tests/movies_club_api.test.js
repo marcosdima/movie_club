@@ -90,16 +90,28 @@ describe('API Test...', () => {
     });
     describe("Activities with login required...", () => {
         let rootToken;
+        let auxUserToken;
         let rootId;
         let auxUserId;
         beforeEach(async () => {
             await User.deleteMany({});
             await Movie.deleteMany({});
-            const { username, password } = helper.rootData();
+
+            // Create the users...
             const { id } = await post('users', helper.rootData())
             const { id: idAux } = await post('users', helper.auxUserData())
+
+            // Get the login data from the helper...
+            const { username, password } = helper.rootData();
+            const { username: auxUsername, password: auxPassword } = helper.auxUserData();
+
+            // Get their tokens...
             const { token } = await post('login', { username, password }, { expectedStatus: 200 });
+            const { token: auxToken } = await post('login', { username: auxUsername, password: auxPassword }, { expectedStatus: 200 });
+
+            // Set the variables...
             rootToken = token;
+            auxUserToken = auxToken;
             rootId = id;
             auxUserId = idAux;
         });
@@ -210,6 +222,7 @@ describe('API Test...', () => {
 
                     expect(historyAfterCreation.length).toBe(1);
                 });
+                
             });
         });
         describe("Invitations...", () => {
@@ -262,21 +275,17 @@ describe('API Test...', () => {
             });
             describe("Update an invitation...", () => {
                 let invitationId;
-                let auxToken;
                 beforeEach(async () => {
                     await Invitation.deleteMany({});
                     const { id } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken });
-                    const { username, password } = helper.auxUserData();
-                    const { token } = await post('login', { username, password }, { expectedStatus: 200 });
                     invitationId = id;
-                    auxToken = token;
                 })
                 test("with the right data.", async () => {
-                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: auxToken });
+                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: auxUserToken });
                     expect(acceptedUpdated).toBe(true)
                 });
                 test("that already was updated.", async () => {
-                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: auxToken });
+                    const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: auxUserToken });
                     expect(acceptedUpdated).toBe(true);
                     await put('invitations', invitationId, { accepted: true }, { token: rootToken, expectedStatus: 403 });
                 });
