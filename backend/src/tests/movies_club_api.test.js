@@ -210,6 +210,13 @@ describe('API Test...', () => {
                         { token: rootToken, expectedStatus: 400 }
                     );
                 });
+                test("in a group you don't belong", async () => {
+                    await post(
+                        'activities', 
+                        { movieId, groupId }, 
+                        { token: auxUserToken, expectedStatus: 403 }
+                    );
+                });
                 test("Test group history update...", async () => {
                     const { history } = await get(`groups/${groupId}`, { token: rootToken });
                     expect(history.length).toBe(0);
@@ -222,7 +229,6 @@ describe('API Test...', () => {
 
                     expect(historyAfterCreation.length).toBe(1);
                 });
-                
             });
         });
         describe("Invitations...", () => {
