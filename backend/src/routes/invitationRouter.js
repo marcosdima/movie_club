@@ -1,4 +1,5 @@
 const invitationsService = require('../services/invitationsService');
+const groupsService = require('../services/groupsService');
 const invitationRouter = require('express').Router();
 
 invitationRouter.use(async (req, res, next) => {
@@ -85,7 +86,7 @@ invitationRouter.put('/:id', async (req, res) => {
     if (!accepted) return res.status(400).json({ error: 'missing field accepted' });
 
     const { id } = req.params;
-    const invitation = await invitationsService.getInvitationById(id);
+    const invitation = await invitationsService.getInvitationById(id, populate=false);
 
     // Checks if invitation exists...
     if (!invitation) return res.status(404).json({ error: 'Invitation does not exist' });
@@ -98,6 +99,9 @@ invitationRouter.put('/:id', async (req, res) => {
     if (invitation.to.toString() !== userId) return res.status(403).json({ error: `Invitation does not belongs to '${username}'` });
 
     const data = await invitationsService.updateInvitation(id, accepted);
+
+    // If the user accepted the invitation...
+    if (accepted) await groupsService.addNewMember(invitation.group.toString(), invitation.to.toString());
 
     return res.json(data);
 });

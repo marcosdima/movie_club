@@ -1,25 +1,26 @@
 const Invitation = require("../models/invitation");
 
-const getInvitations = async (query) => (
-    await Invitation
-        .find(query)
-        .populate('group')
-        .populate('from')
+const getInvitations = async (query, populate=true) => (
+    populate
+        ?   await Invitation
+                .find(query)
+                .populate('group')
+                .populate('from')
+                .populate('to')
+        :   await Invitation.findOne(query)
 );
 
-const getInvitation = async (query) => (
-    await Invitation
-        .findOne(query)
-        .populate('group')
-        .populate('from')
+const getInvitation = async (query, populate=true) => (
+    populate
+        ?   await Invitation
+                .findOne(query)
+                .populate('group')
+                .populate('from')
+                .populate('to')
+        :   await Invitation.findOne(query)
 );
 
-const getInvitationById = async (id) => (
-    await Invitation
-        .findById(id)
-        .populate('group')
-        .populate('from')
-);
+const getInvitationById = async (id, populate=true) => getInvitation({ _id: id }, populate);
 
 const createInvitation = async (invitation) => {
     const newInvitation = new Invitation(invitation);
