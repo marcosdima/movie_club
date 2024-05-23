@@ -26,8 +26,10 @@ const updateGroup = async (groupToUpdate) => {
   const groupUpdated = await Group.findByIdAndUpdate(
     groupToUpdate._id,
     groupToUpdate,
-    { new: true, runValidators: true, context: 'query' }
-  )
+    {
+      new: true, runValidators: true, context: 'query' 
+    }
+  );
   return groupUpdated;
 };
 

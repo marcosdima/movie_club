@@ -11,12 +11,12 @@ moviesRouter.get('/', async (req, res) => {
 moviesRouter.get('/:id', async (req, res) => {
   const { id } = req.params;
   const movie = await movieService.getMovie(id);
-  res.json(movie)
+  res.json(movie);
 });
 
 moviesRouter.post('/', async (req, res) => {
   const { movie } = req.body;
-  if (!movie) return res.status(400).json({ error: "missing movie field" })
+  if (!movie) return res.status(400).json({ error: "missing movie field" });
 
   const { user } = req;
   if (!user) return res.status(401).json({ error: 'token invalid' });
@@ -27,7 +27,7 @@ moviesRouter.post('/', async (req, res) => {
 
 moviesRouter.post('/many', async (req, res) => {
   const { movies } = req.body;
-  if (!movies) return res.status(400).json({ error: "missing movies field" })
+  if (!movies) return res.status(400).json({ error: "missing movies field" });
 
   const { user } = req;
   if (!user) return res.status(401).json({ error: 'token invalid' });
