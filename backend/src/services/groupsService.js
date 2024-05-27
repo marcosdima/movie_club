@@ -1,4 +1,5 @@
 const Group = require('../models/group');
+const usersService = require('../services/usersService');
 
 const getGroups = async (userId) => (
   Group.find({ members: userId })
@@ -13,6 +14,7 @@ const createGroup = async (name, creatorId) => {
   };
   const newGroup = new Group(data);
   await newGroup.save();
+  await usersService.addGroupToUser(creatorId, newGroup._id);
   return newGroup;
 };
 
@@ -49,8 +51,11 @@ const addNewMember = async (groupId, newMemberId) => {
     ...groupQuery.toObject(),
     members: groupQuery.members.concat(newMemberId)
   };
+  
+  const groupUpdated = await updateGroup(groupToUpdate);
+  await usersService.addGroupToUser(groupUpdated._id)
 
-  return await updateGroup(groupToUpdate);
+  return groupUpdated;
 };
 
 module.exports = {

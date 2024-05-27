@@ -160,14 +160,20 @@ describe('API Test...', () => {
       describe("Creating a new group...", () => {
         test("with the right data.", async () => {
           const groupName = 'Testers';
-          const  { name: newGroupName } = await post('groups', { groupName }, { token: rootToken });
+          const  { name: newGroupName, id } = await post('groups', { groupName }, { token: rootToken });
           expect(newGroupName).toBe(groupName);
+          const { groups } = await get(`users/${rootId}`);
+          expect(groups.includes(id)).toBe(true);
         });
         test("with no data.", async () => {
           await post('groups', {}, { token: rootToken, expectedStatus: 400 });
+          const { groups } = await get(`users/${rootId}`);
+          expect(groups.length).toBe(0);
         });
         test("with no token.", async () => {
           await post('groups',  { groupName: 'A' }, { expectedStatus: 401 });
+          const { groups } = await get(`users/${rootId}`);
+          expect(groups.length).toBe(0);
         });
       });
     });
