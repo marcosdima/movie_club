@@ -53,7 +53,7 @@ const addNewMember = async (groupId, newMemberId) => {
   };
   
   const groupUpdated = await updateGroup(groupToUpdate);
-  await usersService.addGroupToUser(groupUpdated._id)
+  await usersService.addGroupToUser(newMemberId, groupUpdated._id)
 
   return groupUpdated;
 };
