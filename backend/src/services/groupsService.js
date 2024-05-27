@@ -1,10 +1,19 @@
 const Group = require('../models/group');
 const usersService = require('../services/usersService');
 
-const getGroups = async (userId) => (
+const populateFields = [
+  { path: 'members' },
+  { path: 'history' },
+]
+
+const getGroups = async (userId, populate=true) => (
   Group.find({ members: userId })
-    .populate('members')
-    .populate('history')
+    .populate(populate ? populateFields : [])
+);
+
+const getGroup = async (groupId, populate=true) => (
+  Group.findById(groupId)
+    .populate(populate ? populateFields : [])
 );
 
 const createGroup = async (name, creatorId) => {
@@ -17,12 +26,6 @@ const createGroup = async (name, creatorId) => {
   await usersService.addGroupToUser(creatorId, newGroup._id);
   return newGroup;
 };
-
-const getGroup = async (groupId) => (
-  Group.findById(groupId)
-    .populate('members')
-    .populate('history')
-);
 
 const updateGroup = async (groupToUpdate) => {
   const groupUpdated = await Group.findByIdAndUpdate(
