@@ -1,6 +1,10 @@
 const Activity = require('../models/activity');
 
-const getActivities = async (groupId) => Activity.find({ group: groupId });
+const getActivities = async (groupId) => await Activity.find({ group: groupId });
+
+const getActivity = async (query) => await Activity.findOne(query);
+
+const getActivityById = async (id) => await getActivity({ _id: id })
 
 const createActivity = async (group, movie) => {
   const newActivity = new Activity({ group, movie });
@@ -8,29 +12,30 @@ const createActivity = async (group, movie) => {
   return newActivity;
 };
 
-const updateActivity = async ({ history, watched }) => {
-  const activityTarget = await Activity.findById(activityToUpdate.id);
-
-  // The only fields that can be modified are history and watched.
-  const update = {
-    ...activityTarget,
-    history,
-    watched,
-  };
-
+const updateActivity = async (activityToUpdate) => {
   const activityUpdated = await Activity.findByIdAndUpdate(
-    activityToUpdate.id,
-    update,
+    activityToUpdate._id,
+    activityToUpdate,
     {
       new: true, runValidators: true, context: 'query' 
     }
   );
-
   return activityUpdated;
 };
 
+const addWatcher = async (userId, activityId) => {
+  const activity = await getActivityById(activityId);
+  const activityToUpdate = {
+    ...activity.toObject(),
+    watched: activity.watched.concat(userId)
+  };
+  return await updateActivity(activityToUpdate);
+}
+
 module.exports = {
   getActivities,
+  getActivity,
+  getActivityById,
   createActivity,
-  updateActivity
+  addWatcher
 };

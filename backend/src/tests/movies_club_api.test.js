@@ -7,8 +7,10 @@ const User = require('../models/user');
 const Group = require('../models/group');
 const Activity = require('../models/activity');
 const Invitation = require('../models/invitation');
+const activity = require('../models/activity');
 
 const api = supertest(app);
+jest.setTimeout(10000);
 
 const post = async (route, objectToSend, options={}) => {
   const { token, expectedStatus } = options;
@@ -29,10 +31,10 @@ const get = async (route, options={}) => {
   return result;
 };
 
-const put = async (route, id, updatedObject, options={}) => {
+const put = async (route, updatedObject, options={}) => {
   const { token, expectedStatus } = options;
   const { _body: result } = await api
-    .put(`/api/${route}/${id}`)
+    .put(`/api/${route}`)
     .send(updatedObject)
     .set('Authorization', token ? `Bearer ${token}` : '')
     .expect(expectedStatus ?? 200);
@@ -236,6 +238,28 @@ describe('API Test...', () => {
           expect(historyAfterCreation.length).toBe(1);
         });
       });
+      describe("Update an activity...", () => {
+        let activityId;
+        beforeEach(async () => {
+          const { id } = await post(
+            'activities', 
+            { movieId, groupId }, 
+            { token: rootToken }
+          );
+          activityId = id;
+        });
+        test("user watched it...", async () => {
+          const { watched } = await put(`activities/${activityId}/watched`, { groupId }, { token: rootToken });
+          expect(watched.includes(rootId)).toBe(true);
+        });
+        test("user watched it... but it's not a valid activity id", async () => {
+          await put(`activities/${groupId}/watched`, { groupId }, { token: rootToken, expectedStatus: 404 });
+        });
+        test("user watched it... but already marked it as watched...", async () => {
+          const { watched } = await put(`activities/${activityId}/watched`, { groupId }, { token: rootToken });
+          await put(`activities/${activityId}/watched`, { groupId }, { token: rootToken, expectedStatus: 403 });
+        });
+      });
     });
     describe("Invitations...", () => {
       let groupId;
@@ -293,16 +317,16 @@ describe('API Test...', () => {
           invitationId = id;
         });
         test("with the right data.", async () => {
-          const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: auxUserToken });
+          const { accepted: acceptedUpdated } = await put(`invitations/${invitationId}`, { accepted: true }, { token: auxUserToken });
           expect(acceptedUpdated).toBe(true);
         });
         test("that already was updated.", async () => {
-          const { accepted: acceptedUpdated } = await put('invitations', invitationId, { accepted: true }, { token: auxUserToken });
+          const { accepted: acceptedUpdated } = await put(`invitations/${invitationId}`, { accepted: true }, { token: auxUserToken });
           expect(acceptedUpdated).toBe(true);
-          await put('invitations', invitationId, { accepted: true }, { token: rootToken, expectedStatus: 403 });
+          await put(`invitations/${invitationId}`, { accepted: true }, { token: rootToken, expectedStatus: 403 });
         });
         test("with the wrong data.", async () => {
-          await put('invitations', invitationId, { accepted: null }, { token: rootToken, expectedStatus: 400 });
+          await put(`invitations/${invitationId}`, { accepted: null }, { token: rootToken, expectedStatus: 400 });
         });
       });
     });
