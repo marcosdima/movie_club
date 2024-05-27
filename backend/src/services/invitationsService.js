@@ -1,7 +1,12 @@
 const Invitation = require("../models/invitation");
 
 const populateFields = [
-  { path: 'group' },
+  { 
+    path: 'group',
+    populate: {
+      path: 'members'
+    }
+  },
   { path: 'from' },
   { path: 'to' },
 ]

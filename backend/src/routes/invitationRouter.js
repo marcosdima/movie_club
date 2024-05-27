@@ -80,10 +80,9 @@ invitationRouter.put('/:id', async (req, res) => {
   const { user: { id: userId, username } } = req;
   if (invitation.to.toString() !== userId) return res.status(403).json({ error: `Invitation does not belongs to '${username}'` });
 
-  const data = await invitationsService.updateInvitation(id, accepted);
-
   // If the user accepted the invitation...
   if (accepted) await groupsService.addNewMember(invitation.group.toString(), invitation.to.toString());
+  const data = await invitationsService.updateInvitation(id, accepted);
 
   return res.json(data);
 });
