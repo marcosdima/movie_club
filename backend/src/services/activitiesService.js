@@ -32,10 +32,20 @@ const addWatcher = async (userId, activityId) => {
   return await updateActivity(activityToUpdate);
 }
 
+const removeWatcher = async (userId, activityId) => {
+  const activity = await getActivityById(activityId);
+  const activityToUpdate = {
+    ...activity.toObject(),
+    watched: activity.watched.filter((id) => id.toString() !== userId)
+  };
+  return await updateActivity(activityToUpdate);
+}
+
 module.exports = {
   getActivities,
   getActivity,
   getActivityById,
   createActivity,
-  addWatcher
+  addWatcher,
+  removeWatcher
 };

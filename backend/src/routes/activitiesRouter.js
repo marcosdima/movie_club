@@ -2,6 +2,25 @@ const activitiesRouter = require('express').Router();
 const activitiesService = require('../services/activitiesService');
 const groupsService = require('../services/groupsService');
 
+const validateActivity = async (req, res, next) => {
+  const { id } = req.params;
+
+  // If the activity does not exists...
+  const activityTarget = await activitiesService.getActivityById(id);
+  if (!activityTarget) {
+    return res.status(404).json({ error: 'activity does not exist' });
+  }
+  
+  // If the activity isn't present in the group...
+  const historyIncludes = req.group.history.find(({ _id }) => _id.toString() === id);
+  if (!historyIncludes) {
+    return res.status(403).json({ error: 'activity does not exist in group' });
+  }
+
+  req.activityTarget = activityTarget;
+  next();
+};
+
 // Middleware to check if the data recieve is correct...
 activitiesRouter.use(async (req, res, next) => {
   // Checks if user exists...
@@ -44,30 +63,32 @@ activitiesRouter.post('/', async (req, res) => {
   res.status(201).json(newActivity);
 });
 
-activitiesRouter.put('/:id/watched', async (req, res) => {
-  // TODO: Check if comments don't have elements repeated..
-  const { id } = req.params;
-  
-  // If the activity does not exists...
-  const activityTarget = await activitiesService.getActivityById(id);
-  if (!activityTarget) return (
-    res.status(404).json({error: 'activity does not exists'})
-  )
 
-  // If the activity isn't present in the group...
-  const historyIncludes = req.group.history.find(({ _id }) => _id.toString() === id);
-  if (!historyIncludes) return (
-    res.status(403).json({error: 'activity does not exists in group'})
-  )
+activitiesRouter.put('/:id/watched', validateActivity, async (req, res) => {
+  const { id } = req.params;
+  const { activityTarget, user: { id: userId } } = req;
 
   // If the activity already was marked as watched...
-  const userId = req.user.id;
   const alreadyWatched = activityTarget.watched.find(({ _id }) => _id.toString() === userId);
   if (alreadyWatched) return (
     res.status(403).json({error: 'user already watched'})
   )
   
   const activityUpdated = await activitiesService.addWatcher(userId, id);
+  res.status(200).json(activityUpdated);
+});
+
+activitiesRouter.put('/:id/unwatched', validateActivity, async (req, res) => {
+  const { id } = req.params;
+  const { activityTarget, user: { id: userId } } = req;
+
+  // If the activity wasn't marked as watched...
+  const userWatched = activityTarget.watched.find(({ _id }) => _id.toString() === userId);
+  if (!userWatched) return (
+    res.status(403).json({error: 'user was not marked it as watched'})
+  )
+  
+  const activityUpdated = await activitiesService.removeWatcher(userId, id);
   res.status(200).json(activityUpdated);
 });
 

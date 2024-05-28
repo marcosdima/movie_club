@@ -259,6 +259,11 @@ describe('API Test...', () => {
           const { watched } = await put(`activities/${activityId}/watched`, { groupId }, { token: rootToken });
           await put(`activities/${activityId}/watched`, { groupId }, { token: rootToken, expectedStatus: 403 });
         });
+        test("usert watched it... but was a mistake!", async () => {
+          await put(`activities/${activityId}/watched`, { groupId }, { token: rootToken });
+          const { watched } = await put(`activities/${activityId}/unwatched`, { groupId }, { token: rootToken });
+          expect(watched.includes(rootId)).toBe(false);
+        });
       });
     });
     describe("Invitations...", () => {
