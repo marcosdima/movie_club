@@ -29,7 +29,10 @@ loginRouter.post('/', async (req, res) => {
   );
 
   res.status(200).send({
-    token, username: user.username, name: user.name 
+    token, 
+    username: user.username, 
+    name: user.name , 
+    id: user._id.toString()
   });
 });
 
