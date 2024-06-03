@@ -33,9 +33,21 @@ const addGroupToUser = async (userId, groupId) => {
   return await updateUser(userToUpdate);
 }
 
+const removeGroup = async (userId, groupId) => {
+  const user = await getUser(userId);
+
+  const userToUpdate = {
+    ...user.toObject(),
+    groups: user.groups.filter(({ id }) => id == groupId)
+  };
+
+  return await updateUser(userToUpdate);
+} 
+
 module.exports = {
   getUser,
   getUsers,
   addUser,
-  addGroupToUser
+  addGroupToUser,
+  removeGroup
 };

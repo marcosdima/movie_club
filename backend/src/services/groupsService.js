@@ -61,10 +61,25 @@ const addNewMember = async (groupId, newMemberId) => {
   return groupUpdated;
 };
 
+const removeAMember = async (groupId, memberToRemove) => {
+  const groupQuery = await Group.findById(groupId);
+
+  const groupToUpdate = {
+    ...groupQuery.toObject(),
+    members: groupQuery.members.filter((member) => member.id == memberToRemove)
+  };
+  
+  const groupUpdated = await updateGroup(groupToUpdate);
+  await usersService.removeGroup(memberToRemove, groupUpdated._id)
+
+  return groupUpdated;
+};
+
 module.exports = {
   getGroups,
   createGroup,
   getGroup,
   addNewActivity,
-  addNewMember
+  addNewMember,
+  removeAMember
 };
