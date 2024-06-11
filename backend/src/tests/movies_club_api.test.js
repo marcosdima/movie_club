@@ -178,7 +178,7 @@ describe('API Test...', () => {
           expect(groups.length).toBe(0);
         });
       });
-      describe.only("Leaving a group...", () => {
+      describe("Leaving a group...", () => {
         let groupId;
         beforeEach(async () => {
           const groupName = 'Testers';
@@ -195,7 +195,7 @@ describe('API Test...', () => {
         test("you don't belong.", async () => {
           await post(`groups/leave`, { groupId }, { token: auxUserToken, expectedStatus: 403 });
         });
-      })
+      });
     });
     describe("Activity functions...", () => {
       let groupId;
