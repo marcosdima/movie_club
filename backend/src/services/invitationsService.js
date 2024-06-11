@@ -10,7 +10,7 @@ const populateFields = [
   },
   { path: 'from' },
   { path: 'to' },
-]
+];
 
 const getInvitations = async (query, populate=true) => (
   await Invitation
@@ -33,11 +33,11 @@ const createInvitation = async (invitation) => {
 
 const updateInvitation = async (id, accepted, populate=true) => (
   await Invitation.findByIdAndUpdate(
-      id,
-      // Accepted it's the only field that can be modified.
-      { $set: { accepted } },
-      { new: true } // Devolver el documento actualizado
-    ).populate(populate ? populateFields : [])
+    id,
+    // Accepted it's the only field that can be modified.
+    { $set: { accepted } },
+    { new: true } // Devolver el documento actualizado
+  ).populate(populate ? populateFields : [])
 );
 
 module.exports = {

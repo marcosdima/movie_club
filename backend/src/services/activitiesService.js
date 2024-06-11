@@ -4,7 +4,7 @@ const getActivities = async (groupId) => await Activity.find({ group: groupId })
 
 const getActivity = async (query) => await Activity.findOne(query);
 
-const getActivityById = async (id) => await getActivity({ _id: id })
+const getActivityById = async (id) => await getActivity({ _id: id });
 
 const createActivity = async (group, movie) => {
   const newActivity = new Activity({ group, movie });
@@ -30,7 +30,7 @@ const addWatcher = async (userId, activityId) => {
     watched: activity.watched.concat(userId)
   };
   return await updateActivity(activityToUpdate);
-}
+};
 
 const removeWatcher = async (userId, activityId) => {
   const activity = await getActivityById(activityId);
@@ -39,7 +39,7 @@ const removeWatcher = async (userId, activityId) => {
     watched: activity.watched.filter((id) => id.toString() !== userId)
   };
   return await updateActivity(activityToUpdate);
-}
+};
 
 module.exports = {
   getActivities,

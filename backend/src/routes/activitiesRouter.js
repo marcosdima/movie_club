@@ -72,7 +72,7 @@ activitiesRouter.put('/:id/watched', validateActivity, async (req, res) => {
   const alreadyWatched = activityTarget.watched.find(({ _id }) => _id.toString() === userId);
   if (alreadyWatched) return (
     res.status(403).json({error: 'user already watched'})
-  )
+  );
   
   const activityUpdated = await activitiesService.addWatcher(userId, id);
   res.status(200).json(activityUpdated);
@@ -86,7 +86,7 @@ activitiesRouter.put('/:id/unwatched', validateActivity, async (req, res) => {
   const userWatched = activityTarget.watched.find(({ _id }) => _id.toString() === userId);
   if (!userWatched) return (
     res.status(403).json({error: 'user was not marked it as watched'})
-  )
+  );
   
   const activityUpdated = await activitiesService.removeWatcher(userId, id);
   res.status(200).json(activityUpdated);

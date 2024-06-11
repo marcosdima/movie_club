@@ -4,7 +4,7 @@ const usersService = require('../services/usersService');
 const populateFields = [
   { path: 'members' },
   { path: 'history' },
-]
+];
 
 const getGroups = async (userId, populate=true) => (
   Group.find({ members: userId })
@@ -56,7 +56,7 @@ const addNewMember = async (groupId, newMemberId) => {
   };
   
   const groupUpdated = await updateGroup(groupToUpdate);
-  await usersService.addGroupToUser(newMemberId, groupUpdated._id)
+  await usersService.addGroupToUser(newMemberId, groupUpdated._id);
 
   return groupUpdated;
 };
@@ -70,7 +70,7 @@ const removeAMember = async (groupId, memberToRemove) => {
   };
   
   const groupUpdated = await updateGroup(groupToUpdate);
-  await usersService.removeGroup(memberToRemove, groupUpdated._id)
+  await usersService.removeGroup(memberToRemove, groupUpdated._id);
 
   return groupUpdated;
 };

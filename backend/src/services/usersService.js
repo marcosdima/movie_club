@@ -20,7 +20,7 @@ const updateUser = async (userToUpdate) => {
     }
   );
   return userUpdated;
-}
+};
 
 const addGroupToUser = async (userId, groupId) => {
   const user = await getUser(userId);
@@ -31,7 +31,7 @@ const addGroupToUser = async (userId, groupId) => {
   };
 
   return await updateUser(userToUpdate);
-}
+};
 
 const removeGroup = async (userId, groupId) => {
   const user = await getUser(userId);
@@ -42,7 +42,7 @@ const removeGroup = async (userId, groupId) => {
   };
 
   return await updateUser(userToUpdate);
-} 
+}; 
 
 module.exports = {
   getUser,
