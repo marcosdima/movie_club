@@ -7,7 +7,6 @@ const User = require('../models/user');
 const Group = require('../models/group');
 const Activity = require('../models/activity');
 const Invitation = require('../models/invitation');
-const activity = require('../models/activity');
 
 const api = supertest(app);
 jest.setTimeout(10000);
