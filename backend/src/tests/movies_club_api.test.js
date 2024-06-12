@@ -161,7 +161,7 @@ describe('API Test...', () => {
       describe("Creating a new group...", () => {
         test("with the right data.", async () => {
           const groupName = 'Testers';
-          const  { name: newGroupName, id } = await post('groups', { groupName }, { token: rootToken });
+          const  { name: newGroupName, id } = await post('groups', { name: groupName }, { token: rootToken });
           expect(newGroupName).toBe(groupName);
           const { groups } = await get(`users/${rootId}`);
           expect(groups.includes(id)).toBe(true);
@@ -172,7 +172,7 @@ describe('API Test...', () => {
           expect(groups.length).toBe(0);
         });
         test("with no token.", async () => {
-          await post('groups',  { groupName: 'A' }, { expectedStatus: 401 });
+          await post('groups',  { name: 'A' }, { expectedStatus: 401 });
           const { groups } = await get(`users/${rootId}`);
           expect(groups.length).toBe(0);
         });
@@ -181,7 +181,7 @@ describe('API Test...', () => {
         let groupId;
         beforeEach(async () => {
           const groupName = 'Testers';
-          const { id } = await post('groups', { groupName }, { token: rootToken });
+          const { id } = await post('groups', { name: groupName }, { token: rootToken });
           groupId = id;
         });
         test("you created.", async () => {
@@ -205,7 +205,7 @@ describe('API Test...', () => {
         await Movie.deleteMany({});
         await Activity.deleteMany({});
         const [movieExample] = helper.exampleMovies();
-        const { id: groupIdQuery } = await post('groups', { groupName }, { token: rootToken });
+        const { id: groupIdQuery } = await post('groups', { name: groupName }, { token: rootToken });
         const { id: movieIdQuery } = await post('movies', { movie: movieExample }, { token: rootToken });
         groupId = groupIdQuery;
         movieId = movieIdQuery;
@@ -288,7 +288,7 @@ describe('API Test...', () => {
       beforeEach(async () => {
         await Group.deleteMany({});
         await Invitation.deleteMany({});
-        const { id: groupIdQuery } = await post('groups', { groupName: 'Group Name' }, { token: rootToken });
+        const { id: groupIdQuery } = await post('groups', { name: 'Group Name' }, { token: rootToken });
         groupId = groupIdQuery;
       });
       describe("Create an invitation...", () => {
