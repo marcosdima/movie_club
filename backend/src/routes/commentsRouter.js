@@ -2,13 +2,11 @@ const commentsRouter = require('express').Router();
 const commentsService = require('../services/commentsService');
 const activitiesService = require('../services/activitiesService');
 const groupsService = require('../services/groupsService');
+const Comment = require('../models/comment');
+const checkModelStructure = require('../utils/middleware').checkModelStructure;
 
-commentsRouter.get('/:activityId', async (req, res) => {
-  const { activityId } = req.params;
-  res.json(await commentsService.getComments(activityId));
-});
-
-commentsRouter.use(async (req, res, next) => {
+// Middleware to valid if a comment can be created.
+const validCreation = async (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'token invalid' });
 
   const { activity: activityId } = req.body;
@@ -22,9 +20,14 @@ commentsRouter.use(async (req, res, next) => {
   if (!membersIds.includes(userId)) return res.status(404).json({ error: "user don't belong to the activity group" });
 
   next();
+};
+
+commentsRouter.get('/:activityId', async (req, res) => {
+  const { activityId } = req.params;
+  res.json(await commentsService.getComments(activityId));
 });
 
-commentsRouter.post('/', async (req, res) => {
+commentsRouter.post('/', validCreation, checkModelStructure(Comment), async (req, res) => {
   // TODO: Check if req.body has the right fields.
   const newComment = await commentsService.createComment(req.body);
   res.status(201).json(newComment);
