@@ -16,7 +16,7 @@ const getGroup = async (groupId, populate=true) => (
     .populate(populate ? populateFields : [])
 );
 
-const createGroup = async (name, creatorId) => {
+const createGroup = async (name, creatorId, populate=true) => {
   const data = {
     name,
     members: [creatorId]
@@ -24,7 +24,7 @@ const createGroup = async (name, creatorId) => {
   const newGroup = new Group(data);
   await newGroup.save();
   await usersService.addGroupToUser(creatorId, newGroup._id);
-  return newGroup;
+  return newGroup.populate(populate ? populateFields : []);
 };
 
 const updateGroup = async (groupToUpdate) => {
