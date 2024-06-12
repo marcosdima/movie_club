@@ -52,7 +52,7 @@ invitationRouter.post('/', async (req, res) => {
 
   // Checks if already exists an invitation...
   const alreadyExists = await invitationsService.getInvitation({
-    to, from, group: groupId, accepted: null 
+    to, group: groupId, accepted: null 
   });
   if (alreadyExists) return res.status(409).json({error: "There is already an invitation for this user to this group..."});
 
