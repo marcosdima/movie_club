@@ -42,7 +42,6 @@ const errorHandler = (error, request, response, next) => {
 const checkModelStructure = (model, omitKeys=[]) => {
   return (req, res, next) => {
     const obj = req.body;
-    console.log(model.schema.obj);
     const { missingKeys, extraKeys } = checkStructure(model.schema.obj, obj, omitKeys);
     if (extraKeys.length > 0) return res.status(400).send({ error: `Extra keys founded: ${extraKeys.join(', ')}.`});
     else if (missingKeys.length > 0) return res.status(400).send({ error: `Missing keys: ${missingKeys.join(', ')}.`});
