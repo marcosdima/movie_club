@@ -32,6 +32,15 @@ const addWatcher = async (userId, activityId) => {
   return await updateActivity(activityToUpdate);
 };
 
+const addComment = async (commentId, activityId) => {
+  const activity = await getActivityById(activityId);
+  const activityToUpdate = {
+    ...activity.toObject(),
+    comments: activity.watched.concat(commentId)
+  };
+  return await updateActivity(activityToUpdate);
+};
+
 const removeWatcher = async (userId, activityId) => {
   const activity = await getActivityById(activityId);
   const activityToUpdate = {
@@ -47,5 +56,6 @@ module.exports = {
   getActivityById,
   createActivity,
   addWatcher,
+  addComment,
   removeWatcher
 };

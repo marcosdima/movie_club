@@ -15,6 +15,7 @@ const groupRouter = require('./routes/groupRouter');
 const loginRouter = require('./routes/loginRouter');
 const activitiesRouter = require('./routes/activitiesRouter');
 const invitationRouter = require('./routes/invitationRouter');
+const commentsRouter = require('./routes/commentsRouter');
 
 mongoose.connect(config.MONGODB_URI)
   .then(() => {
@@ -34,6 +35,7 @@ app.use('/api/groups', groupRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/invitations', invitationRouter);
+app.use('/api/comments', commentsRouter);
 app.use(middleware.errorHandler);
 app.use(middleware.unknownEndpoint);
 
