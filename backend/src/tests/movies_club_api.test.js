@@ -8,6 +8,8 @@ const Group = require('../models/group');
 const Activity = require('../models/activity');
 const Invitation = require('../models/invitation');
 
+// TODO: test getters.
+
 const api = supertest(app);
 jest.setTimeout(10000);
 
