@@ -1,5 +1,7 @@
 const groupsService = require('../services/groupsService');
 const groupRouter = require('express').Router();
+const Group = require('../models/group');
+const checkModelStructure = require('../utils/middleware').checkModelStructure;
 
 groupRouter.use(async (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'token invalid' });
@@ -18,11 +20,9 @@ groupRouter.get('/:id', async (req, res) => {
   res.json(group);
 });
 
-groupRouter.post('/', async (req, res) => {
-  const { groupName } = req.body;
-  if (!groupName) return res.status(400).json({ error: "missing groupName field" });
-
+groupRouter.post('/', checkModelStructure(Group, ['members', 'history']), async (req, res) => {
   const { user } = req;
+  const { name: groupName } = req.body;
   const group = await groupsService.createGroup(groupName, user.id);
   res.status(201).json(group);
 });
