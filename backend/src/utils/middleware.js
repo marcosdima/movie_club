@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const logger = require('./logger');
 const groupsService = require('../services/groupsService');
+const checkStructure = require('./functions').checkStructure; 
 
 const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization');
@@ -38,10 +39,22 @@ const errorHandler = (error, request, response, next) => {
   next(error);
 };
 
+const checkModelStructure = (model, omitKeys=[]) => {
+  return (req, res, next) => {
+    const obj = req.body;
+    console.log(model.schema.obj);
+    const { missingKeys, extraKeys } = checkStructure(model.schema.obj, obj, omitKeys);
+    if (extraKeys.length > 0) return res.status(400).send({ error: `Extra keys founded: ${extraKeys.join(', ')}.`});
+    else if (missingKeys.length > 0) return res.status(400).send({ error: `Missing keys: ${missingKeys.join(', ')}.`});
+    next();
+  };
+};
+
 module.exports = {
   tokenExtractor,
   userExtractor,
   groupExtractor,
   unknownEndpoint,
-  errorHandler
+  errorHandler,
+  checkModelStructure
 };
