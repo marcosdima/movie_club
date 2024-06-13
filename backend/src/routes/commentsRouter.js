@@ -28,7 +28,6 @@ commentsRouter.get('/:activityId', async (req, res) => {
 });
 
 commentsRouter.post('/', validCreation, checkModelStructure(Comment), async (req, res) => {
-  // TODO: Check if req.body has the right fields.
   const newComment = await commentsService.createComment(req.body);
   res.status(201).json(newComment);
 });
