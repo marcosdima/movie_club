@@ -14,7 +14,7 @@ const getComment = async (query, populate=true) => (
   await Comment.findOne(query).populate(populate ? populateFields : [])
 );
 
-const getCommentById = async (id, populate=true) => await getComments({ _id: id }, populate);
+const getCommentById = async (id, populate=true) => await getComment({ _id: id }, populate);
 
 const createComment =  async (comment) => {
   const newComment = new Comment(comment);
@@ -24,7 +24,7 @@ const createComment =  async (comment) => {
 };
 
 const deleteComment = async (id) => {
-  await Comment.findAndDelete({ id });
+  await Comment.deleteOne({ _id: id });
 };
 
 module.exports = {
