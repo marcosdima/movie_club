@@ -20,7 +20,7 @@ const createComment =  async (comment) => {
   const newComment = new Comment(comment);
   await newComment.save();
   await activitiesService.addComment(newComment.id, newComment.activity);
-  return newComment;
+  return newComment.populate(populateFields);
 };
 
 const deleteComment = async (id) => {
