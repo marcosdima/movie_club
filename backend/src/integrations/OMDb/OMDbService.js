@@ -7,13 +7,14 @@ const movieFormatter = ({ Title, Director, Genre, Plot, Poster, imdbID }) => (
     title: Title,
     director: Director,
     description: Plot,
-    genres: Genre?.split(', ') ?? '',
+    genres: Genre?.split(', ') ?? [],
     imageUrl: Poster
   }
 );
 
 const getById = async (id) => {
-  const data = await axios.get(`${baseUrl}&i=${id}`);
+  const { data } = await axios.get(`${baseUrl}&i=${id}`);
+  console.log(data);
   return movieFormatter(data);
 };
 
