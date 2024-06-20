@@ -72,6 +72,9 @@ const removeAMember = async (groupId, memberToRemove) => {
   const groupUpdated = await updateGroup(groupToUpdate);
   await usersService.removeGroup(memberToRemove, groupUpdated._id);
 
+  // If the group has no members, then delete it.
+  if (groupUpdated.members.length === 0) await Group.deleteOne({ _id: groupUpdated.id });
+
   return groupUpdated;
 };
 
