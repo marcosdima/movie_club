@@ -16,6 +16,7 @@ const loginRouter = require('./routes/loginRouter');
 const activitiesRouter = require('./routes/activitiesRouter');
 const invitationRouter = require('./routes/invitationRouter');
 const commentsRouter = require('./routes/commentsRouter');
+const integrationsRouter = require('./integrations/integrations');
 
 mongoose.connect(config.MONGODB_URI)
   .then(() => {
@@ -36,6 +37,7 @@ app.use('/api/login', loginRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/invitations', invitationRouter);
 app.use('/api/comments', commentsRouter);
+app.use('/api/integrations', integrationsRouter);
 app.use(middleware.errorHandler);
 app.use(middleware.unknownEndpoint);
 
