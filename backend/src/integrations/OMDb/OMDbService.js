@@ -14,7 +14,6 @@ const movieFormatter = ({ Title, Director, Genre, Plot, Poster, imdbID }) => (
 
 const getById = async (id) => {
   const { data } = await axios.get(`${baseUrl}&i=${id}`);
-  console.log(data);
   return movieFormatter(data);
 };
 
