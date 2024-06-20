@@ -27,14 +27,17 @@ groupRouter.post('/', checkModelStructure(Group, ['members', 'history']), async 
   res.status(201).json(group);
 });
 
-groupRouter.post('/leave', async (req, res) => {
-  const { user: { id: userId }, group } = req;
-  if (!group) return res.status(400).json({ error: "missing groupId" });
+groupRouter.post('/leave/:groupId', async (req, res) => {
+  const { user: { id: userId } } = req;
+  const { groupId } = req.params; 
+  const group = await groupsService.getGroup(groupId);
+
+  if (!group) return res.status(404).json({ error: "group not found" });
 
   const isAMember = group.members.find(({ id }) => id == userId);
   if (!isAMember) return res.status(403).json({ error: "user does not belong to group" });
 
-  const groupUpdated = await groupsService.removeAMember(group.id, userId);
+  const groupUpdated = await groupsService.removeAMember(groupId, userId);
 
   res.status(201).json(groupUpdated);
 });
