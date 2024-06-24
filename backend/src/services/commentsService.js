@@ -1,5 +1,4 @@
 const Comment = require('../models/comment');
-const activitiesService = require('../services/activitiesService');
 
 const populateFields = [
   { path: 'activity' },
@@ -19,7 +18,6 @@ const getCommentById = async (id, populate=true) => await getComment({ _id: id }
 const createComment =  async (comment) => {
   const newComment = new Comment(comment);
   await newComment.save();
-  await activitiesService.addComment(newComment.id, newComment.activity);
   return newComment.populate(populateFields);
 };
 
