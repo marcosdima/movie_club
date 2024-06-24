@@ -196,14 +196,14 @@ describe('API Test...', () => {
           groupId = id;
         });
         test("you created.", async () => {
-          await post(`groups/leave`, { groupId }, { token: rootToken });
+          await post(`groups/leave/${groupId}`, {}, { token: rootToken });
           const groups = await get('groups', { token: rootToken });
           expect(groups.length).toBe(0);
           const user = await get(`users/${rootId}`, { token: rootToken });
           expect(user.groups.length).toBe(0);
         });
         test("you don't belong.", async () => {
-          await post(`groups/leave`, { groupId }, { token: auxUserToken, expectedStatus: 403 });
+          await post(`groups/leave/${groupId}`, {}, { token: auxUserToken, expectedStatus: 403 });
         });
       });
     });
