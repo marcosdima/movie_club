@@ -8,8 +8,8 @@ const checkModelStructure = require('../utils/middleware').checkModelStructure;
 // Middleware to valid if a comment can be created.
 const activityExists = async (req, res, next) => {
   const { activity: activityId } = req.body;
-
   const activity = await activitiesService.getActivityById(activityId);
+
   if (!activity) return res.status(404).json({ error: 'activity does not exist' });
   req.activity = activity;
   next();
@@ -21,7 +21,7 @@ const belongsToGroup = async (req, res, next) => {
   const { activity } = req;
   let groupId;
 
-  // If req.activity does not exists...
+  // If req.activity does not exists (Defined at 'activityExists')...
   if (!activity) {
     const comment = await commentsService.getCommentById(id);
     if (!comment) return res.status(404).json({ error: "comment does not exist" }); 
@@ -42,8 +42,11 @@ commentsRouter.get('/:activityId', async (req, res) => {
   res.json(await commentsService.getComments(activityId));
 });
 
-commentsRouter.post('/', activityExists, belongsToGroup, checkModelStructure(Comment), async (req, res) => {
-  const newComment = await commentsService.createComment(req.body);
+commentsRouter.post('/', checkModelStructure(Comment, omitKeys=['writer']), activityExists, belongsToGroup, async (req, res) => {
+  const newComment = await commentsService.createComment({ 
+    ...req.body, 
+    writer: req.user.id 
+  });
   await activitiesService.addComment(newComment.id, newComment.activity);
   res.status(201).json(newComment);
 });
