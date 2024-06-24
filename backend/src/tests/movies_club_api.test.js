@@ -42,6 +42,15 @@ const put = async (route, updatedObject, options={}) => {
   return result;
 };
 
+const remove = async (route, options={}) => {
+  const { token, expectedStatus } = options;
+  const { _body: result } = await api
+    .delete(`/api/${route}`)
+    .set('Authorization', token ? `Bearer ${token}` : '')
+    .expect(expectedStatus ?? 200);
+  return result;
+};
+
 describe('API Test...', () => {
   describe("Users...", () => {
     describe("Create an user...", () => {
@@ -354,13 +363,13 @@ describe('API Test...', () => {
         });
       });
     });
-    describe.only("Comments...", () => {
+    describe("Comments...", () => {
       let groupId;
       let activityId;
       const [movie] = helper.exampleMovies();
       beforeEach(async () => {
-        await Group.deleteMany({});
         // Creates a group and sets the variable 'groupId'.
+        await Group.deleteMany({});
         const { id: groupIdQuery } = await post('groups', { name: 'Group Name' }, { token: rootToken });
         groupId = groupIdQuery;
 
@@ -375,7 +384,6 @@ describe('API Test...', () => {
         test("right data.", async () => {
           const contentData = 'NONE';
           const { content } = await post('comments', {activity: activityId, content: contentData}, { token: rootToken });
-          
           expect(content).toBe(contentData);
         });
         describe("wrong data:", () => {
@@ -391,6 +399,24 @@ describe('API Test...', () => {
             const contentData = 'NONE';
             await post('comments', { activity: rootId , content: contentData }, { token: rootToken, expectedStatus: 404 });
           });
+        });
+      });
+      describe("Deletion", () => {
+        let commentId;
+        const contentData = 'Content';
+        beforeEach(async () => {
+          const { id } = await post('comments', 
+            { activity: activityId, content: contentData },
+            { token: rootToken }
+          );
+          commentId = id;
+        });
+        test("Delete your comment", async () => {
+          const comments = await get(`comments/${activityId}`, { token: rootToken });
+          expect(comments.length).toBe(1);
+          await remove(`comments/${commentId}`, { token: rootToken });
+          const commentsAfter = await get(`comments/${activityId}`, { token: rootToken });
+          expect(commentsAfter.length).toBe(0);
         });
       });
     });
