@@ -1,4 +1,5 @@
 require('express-async-errors');
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
@@ -39,6 +40,9 @@ app.use('/api/activities', activitiesRouter);
 app.use('/api/invitations', invitationRouter);
 app.use('/api/comments', commentsRouter);
 app.use('/api/integrations', integrationsRouter);
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+});
 app.use(middleware.errorHandler);
 app.use(middleware.unknownEndpoint);
 
