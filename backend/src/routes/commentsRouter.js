@@ -53,7 +53,10 @@ commentsRouter.post('/', checkModelStructure(Comment, omitKeys=['writer']), acti
 
 commentsRouter.delete('/:id', belongsToGroup, async (req, res) => {
   const { id } = req.params;
-  const { activity } = await commentsService.getCommentById(id, false);
+  const { activity, writer } = await commentsService.getCommentById(id, false);
+
+  if (writer.toString() !== req.user.id) return res.status(401).json({ error: 'this comment is not yours!' }); 
+
   await commentsService.deleteComment(id);
   await activitiesService.removeComment(id, activity);
   res.json({ message: 'Comment deleted successfully!' });
