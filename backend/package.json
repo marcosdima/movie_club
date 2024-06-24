@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon ./src/index.js",
     "lint": "eslint .",
-    "test": "jest --verbose --runInBand"
+    "test": "jest --verbose --runInBand",
+    "build:ui": "npm install && rm -rf dist && cd ../frontend && npm install && npm run build && cp -r dist ../backend && cd ../frontend && rm -rf dist"
+
   },
   "author": "Marcos Di Matteo",
   "license": "ISC",
