@@ -1,4 +1,5 @@
 const Activity = require('../models/activity');
+const commentsService = require('./commentsService'); 
 
 const getActivities = async (groupId) => await Activity.find({ group: groupId });
 
@@ -36,7 +37,7 @@ const addComment = async (commentId, activityId) => {
   const activity = await getActivityById(activityId);
   const activityToUpdate = {
     ...activity.toObject(),
-    comments: activity.watched.concat(commentId)
+    comments: activity.comments.concat(commentId)
   };
   return await updateActivity(activityToUpdate);
 };
@@ -50,6 +51,21 @@ const removeWatcher = async (userId, activityId) => {
   return await updateActivity(activityToUpdate);
 };
 
+const removeComment = async (commentId, activityId) => {
+  const activity = await getActivityById(activityId);
+  const activityToUpdate = {
+    ...activity.toObject(),
+    comments: activity.comments.filter(({ id }) => id === commentId)
+  };
+  return await updateActivity(activityToUpdate);
+};
+
+const deleteActivity = async (activityId) => {
+  const { comments } = getActivityById(activityId);
+  comments.forEach((comment) => commentsService.deleteComment(comment.toString()));
+  await Activity.deleteOne({ _id: activityId });
+};
+
 module.exports = {
   getActivities,
   getActivity,
@@ -57,5 +73,7 @@ module.exports = {
   createActivity,
   addWatcher,
   addComment,
-  removeWatcher
+  removeComment,
+  removeWatcher,
+  deleteActivity
 };
