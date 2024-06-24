@@ -44,12 +44,15 @@ commentsRouter.get('/:activityId', async (req, res) => {
 
 commentsRouter.post('/', activityExists, belongsToGroup, checkModelStructure(Comment), async (req, res) => {
   const newComment = await commentsService.createComment(req.body);
+  await activitiesService.addComment(newComment.id, newComment.activity);
   res.status(201).json(newComment);
 });
 
 commentsRouter.delete('/:id', belongsToGroup, async (req, res) => {
   const { id } = req.params;
+  const { activity } = await commentsService.getCommentById(id, false);
   await commentsService.deleteComment(id);
+  await activitiesService.removeComment(id, activity);
   res.json({ message: 'Comment deleted successfully!' });
 });
 
