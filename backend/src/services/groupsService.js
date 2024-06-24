@@ -1,4 +1,5 @@
 const Group = require('../models/group');
+const activityService = require('./activitiesService');
 const usersService = require('../services/usersService');
 
 const populateFields = [
@@ -73,9 +74,17 @@ const removeAMember = async (groupId, memberToRemove) => {
   await usersService.removeGroup(memberToRemove, groupUpdated._id);
 
   // If the group has no members, then delete it.
-  if (groupUpdated.members.length === 0) await Group.deleteOne({ _id: groupUpdated.id });
+  if (groupUpdated.members.length === 0) deleteGroup(groupUpdated);
 
   return groupUpdated;
+};
+
+const deleteGroup = async ({ id, history }) => {
+  // Deletes group activities.
+  history.forEach((activity) => activityService.deleteActivity(activity.toString()));
+
+  // Deletes group.
+  await Group.deleteOne({ _id: groupId });
 };
 
 module.exports = {
