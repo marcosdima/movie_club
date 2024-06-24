@@ -418,6 +418,26 @@ describe('API Test...', () => {
           const commentsAfter = await get(`comments/${activityId}`, { token: rootToken });
           expect(commentsAfter.length).toBe(0);
         });
+        test("Delete another user comment", async () => {
+          // Adds a new user and creates a comment.
+          const { id: invitationId } = await post('invitations', { to: auxUserId, groupId }, { token: rootToken });
+          await put(`invitations/${invitationId}`, { accepted: true }, { token: auxUserToken });
+          const { id } = await post('comments', 
+            { activity: activityId, content: contentData },
+            { token: auxUserToken }
+          );
+
+          // Checks if the commment exists.
+          const comments = await get(`comments/${activityId}`, { token: rootToken });
+          expect(comments.length).toBe(2);
+
+          // Try to remove it.
+          await remove(`comments/${id}`, { token: rootToken, expectedStatus: 401 });
+
+          // The comments should be the same.
+          const commentsAfter = await get(`comments/${activityId}`, { token: rootToken });
+          expect(commentsAfter.length).toBe(2);
+        });
       });
     });
   });
