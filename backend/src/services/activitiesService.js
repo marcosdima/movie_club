@@ -61,8 +61,13 @@ const removeComment = async (commentId, activityId) => {
 };
 
 const deleteActivity = async (activityId) => {
-  const { comments } = getActivityById(activityId);
+  // Get the activity comments.
+  const { comments } = await getActivityById(activityId);
+  
+  // Delete comments.
   comments.forEach((comment) => commentsService.deleteComment(comment.toString()));
+
+  // Delete the activity.
   await Activity.deleteOne({ _id: activityId });
 };
 
