@@ -84,7 +84,7 @@ const deleteGroup = async ({ id, history }) => {
   history.forEach((activity) => activityService.deleteActivity(activity.toString()));
 
   // Deletes group.
-  await Group.deleteOne({ _id: groupId });
+  await Group.deleteOne({ _id: id });
 };
 
 module.exports = {
