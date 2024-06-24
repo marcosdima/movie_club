@@ -360,17 +360,37 @@ describe('API Test...', () => {
       const [movie] = helper.exampleMovies();
       beforeEach(async () => {
         await Group.deleteMany({});
+        // Creates a group and sets the variable 'groupId'.
         const { id: groupIdQuery } = await post('groups', { name: 'Group Name' }, { token: rootToken });
-        const { id } = await post('activity', { movie }, { token: rootToken });
         groupId = groupIdQuery;
+
+        // Creates a movie.
+        const { id: movieId } = await post('movies', { movie }, { token: rootToken });
+
+        // Creates a new activity with the movieId and groupId, also sets the variable 'activityId'.
+        const { id } = await post('activities', { movieId, groupId }, { token: rootToken });
         activityId = id;
       });
       describe("Creation", () => {
-        test("Right data", async () => {
-          const comment = await post('comments', {
-            writer: rootId, activity: activityId, content: "NONE" 
-          }, { token: rootToken });
-
+        test("right data.", async () => {
+          const contentData = 'NONE';
+          const { content } = await post('comments', {activity: activityId, content: contentData}, { token: rootToken });
+          
+          expect(content).toBe(contentData);
+        });
+        describe("wrong data:", () => {
+          test("no activity.", async () => {
+            const contentData = 'NONE';
+            await post('comments', { content: contentData }, { token: rootToken, expectedStatus: 400 });
+          });
+          test("no content.", async () => {
+            const contentData = 'NONE';
+            await post('comments', { activity: activityId }, { token: rootToken, expectedStatus: 400 });
+          });
+          test("non existent activityId.", async () => {
+            const contentData = 'NONE';
+            await post('comments', { activity: rootId , content: contentData }, { token: rootToken, expectedStatus: 404 });
+          });
         });
       });
     });
