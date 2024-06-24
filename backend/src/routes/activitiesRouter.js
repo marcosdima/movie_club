@@ -63,7 +63,6 @@ activitiesRouter.post('/', async (req, res) => {
   res.status(201).json(newActivity);
 });
 
-
 activitiesRouter.put('/:id/watched', validateActivity, async (req, res) => {
   const { id } = req.params;
   const { activityTarget, user: { id: userId } } = req;
