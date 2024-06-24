@@ -354,6 +354,26 @@ describe('API Test...', () => {
         });
       });
     });
+    describe.only("Comments...", () => {
+      let groupId;
+      let activityId;
+      const [movie] = helper.exampleMovies();
+      beforeEach(async () => {
+        await Group.deleteMany({});
+        const { id: groupIdQuery } = await post('groups', { name: 'Group Name' }, { token: rootToken });
+        const { id } = await post('activity', { movie }, { token: rootToken });
+        groupId = groupIdQuery;
+        activityId = id;
+      });
+      describe("Creation", () => {
+        test("Right data", async () => {
+          const comment = await post('comments', {
+            writer: rootId, activity: activityId, content: "NONE" 
+          }, { token: rootToken });
+
+        });
+      });
+    });
   });
 });
 
